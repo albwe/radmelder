@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf8" />
+  <title>Radmelder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+ <link rel="stylesheet" href="css/leaflet.css"
+   integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+   crossorigin=""/>
+   <link rel="stylesheet" href="css/bootstrap.min.css"/>
+
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+<link rel="stylesheet" href="css/leaflet.extra-markers.min.css">
+<link rel="stylesheet" href="css/ngDialog.min.css"/>
+<link rel="stylesheet" href="css/ngDialog-theme-plain.min.css"/>
+<link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+   <link rel="stylesheet" href="css/style.css"/>
+<script src="js/angular.js"></script>
+<script src="js/angular-cookies.js"></script>
+<script src="js/angular-local-storage.min.js"></script>
+<!--<script src="js/angular-route.js"></script>-->
+<script src="js/angular-animate.js"></script>
+<script src="js/angular-touch.js"></script>
+<script src="js/angular-simple-logger.min.js"></script>
+<script src="js/angular-image-compress.js"></script>
+<script src="js/ngDialog.min.js"></script>
+<script src="js/ui-bootstrap-tpls-2.5.0.min.js"></script>
+
+<script src="js/ui-leaflet.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/leaflet.js"
+   integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+   crossorigin=""></script>
+   <script src="js/leaflet.extra-markers.min.js"></script>
+</head>
+
+<body ng-app="radwege"  ng-controller="core">
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#page-top">Radmelder</a>
+    </div>
+  </nav>
+<div class="container-fluid karte">
+<div class="row">
+  <div class="col-custom col-lg-12 col-md-12 col-sm-12 col-xs-12">
+<leaflet id="main" defaults="defaults" lf-center="muenster" geojson="geojson" markers="markers" tiles="tiles" events="events" layers="layers"><!--<layercontrol order="normal" icons="layercontrol.icons" auto-hide-opacity="true" show-groups="true" title="Layer Manager" base-title="Base Layers" overlays-title="Overlays Layers"></layercontrol>--></leaflet>
+</div>
+</div>
+</div>
+<section class="einleitung">
+<div class="container below-map bg-green">
+<div class="row">
+
+  <div class="col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12 col-xs-12">
+    <h3 class="text-white">Kleine Schritte – Große Wirkung: <b>Fahrradweg-Melder</b> für
+  Musterstadt!</h3>
+    <p class="einleitung-text">
+Markiere auf dieser Karte, wo das Fahrradfahren in Musterstadt für dich
+unbequem, stressig oder gar gefährlich wird. Teile uns die Problemstelle
+möglichst genau mit, indem du am besten auch ein Foto davon hochlädst. Beschreibe,
+was dich stört und warum. Äußere deinen Verbesserungsvorschlag. Das hat
+schon vor dir jemand gemacht? Dann vote es hoch! Wenn du willst, kannst du uns auch deine Mailadresse hinterlassen, damit wir dich bei Unklarheiten kontaktieren können.
+</p><p class="einleitung-text">
+Dein Fahrrad. Dein Weg. Deine Stadt. Packen wir es an!</p>
+      </p>
+    </div></div><div class="row"> <div class="col-lg-12" style="text-align: center;">
+      <a style="color: #045922;" ng-click="addpoint=!addpoint;" class="btn btn-light btn-xl cl hinzuefuegen"></span>Problem melden</a>
+    </div>
+</div>
+</div>
+</section>
+<section class="formular">
+  <div class="container">
+<div class="row below-map">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-hide="form_completed">
+
+
+<form class="form" ng-submit="submit_form()" ng-show="addpoint">
+  <div class="form-group">
+	<label for="Titel">Titel/Ort*:</label>
+	<input ng-model="ownpoint.Titel" type="text" name="Titel" value="" class="form-control">
+<small class="form-text text-muted">Gib kurz an, um welches Problem es sich handelt und nenne die Straße der Problemstelle. </small>
+</div>
+<div class="form-group">
+  <label for="standort">Adresse</label>
+<div class="input-group">
+<input type="text" ng-model="ownpoint.position_text" ng-keyup="$event.keyCode==13 ? suchen(ownpoint.position_text):null" class="form-control" name="standort"/>
+<div class="input-group-append">
+<button class="btn btn-primary" ng-click="suchen(ownpoint.position_text)" type="button">Suchen</button>
+<button class="btn btn-secondary" type="button" ng-click="gps()">GPS (akt. Standort)</button>
+</div>
+</div>
+<small class="form-text text-muted">Bitte gebe die ungefähre Adresse (Straße, Hausnummer) des Problems ein und klicke auf Suchen. Du kannst alternativ auch deinen aktuellen Standort bestimmen lassen.</small>
+</div>
+<div class="progress" ng-show="suche_laeuft">
+<div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+</div>
+
+<leaflet ng-show="standort_ermittelt" id="ownpoint" tiles="tiles" height="300px" style="width: 100%; height: 300px;" events="events" lf-center="owncenter" markers="ownmarkers"></leaflet>
+<small class="form-text text-muted" ng-show="standort_ermittelt">Auf der Karte kannst du den Punkt ziehen, um den richtigen Standort auszuwählen. <span ng-show="marker_gezogen"><i>Standort geändert!</i>&nbsp;<button class="btn btn-sm btn-outline-secondary" ng-click="resetlatlng()">Reset</button></span></small>
+<div class="form-group">
+	<label for="Problem">Problem* (ggf. Verbesserungsvorschlag):</label>
+	<textarea name="Problem" ng-model="ownpoint.Problem" rows="3" cols="30" maxlength="1500" class="form-control"></textarea>
+  <small class="form-text text-muted">Schildere ausführlich, was dir aufgefallen ist und ggf. deinen Verbesserungsvorschlag.</small>
+</div>
+
+<div class="form-group">
+  <label for="Foto">Foto</label>
+  <input id="takePictureField" ng-model="ownpoint.Foto" name="Foto" type="file" accept="image/*" class="form-control-file" image="imageupload" resize-max-height="1000" resize-max-width="1000" resize-quality="0.7" resize-type="image/jpg" ng-image-compress/><!--<span ng-click="leeren()" ng-show="document.getElementById('takePictureField').files.length>0"><span class="fas fa-times"></span> Entfernen</span>-->
+  <small class="form-text text-muted">Füge ein Foto hinzu, um das Problem zu verdeutlichen.</small>
+</div>
+
+<div class="form-group">
+  <label for="mail">E-Mail-Adresse für Rückfragen (wird nicht veröffentlicht)</label>
+  <input type="email" ng-model="ownpoint.mail" name="mail" class="form-control"/>
+  <small class="form-text text-muted">Gib deine Mail-Adresse für evtl. Rückfragen an.</small>
+</div>
+
+<div class="form-check">
+  <label for="datenschutzCheck" class="form-check-label">Ich stimme der Speicherung meiner E-Mail-Adresse, der anonymisierten Veröffentlichung meiner Einreichung und der Nutzung meines Bildes zu.
+</div>
+	<button class="btn btn-primary" ng-click="send_new2()" name="absenden">Absenden</button>
+  <div class="progress" ng-show="inprogress">
+  <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+</div>
+<small class="text-muted" ng-show="inprogress">Bitte habe einen Moment Geduld, der Bild-Upload kann etwas dauern.</small>
+</form>
+</div>
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-success" ng-show="form_completed">
+  <span class="fas fa-check"></span>&nbsp;Vielen Dank für Ihre Einsendung. Der Beitrag wird von uns geprüft und dann online gestellt. <button class="btn btn-primary" ng-click="clear_form()">Weitere Stelle einreichen.</button>
+</div>
+</div>
+</div>
+</section>
+<section class="problemliste" id="problemliste">
+  <div class="container">
+    <div class="row">
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 liste">
+  <h2 style="width: 100%; text-align:center; color: #045922;">Liste der Probleme: {{markers.length-1}} gemeldet</h2>
+</div>
+</div>
+<div class="row">
+<div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+  <input type="text" class="form-control" ng-model="suche" placeholder="Suche" style="width: 100%;"/>
+</div>
+<div id="list-nav-top" class="col-lg-4 offset-lg-4 col-md-6 col-sm-12 col-xs-12 text-md-right text-xs-center">
+<button class="btn btn-link btn-xl" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+        <span class="fas fa-chevron-left"></span>
+    </button>
+    {{currentPage+1}}/{{numberOfPages()}}
+    <button class="btn btn-link btn-xl" ng-disabled="currentPage >= markers.length/pageSize - 1" ng-click="currentPage=currentPage+1">
+      <span class="fas fa-chevron-right"></span>
+    </button>
+</div>
+</div>
+<div class="row">
+  <div class="card-group">
+  <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 card-wrapper" ng-hide="f.visible==false" ng-repeat="f in markers | filter:suche |filter: filterFunction | orderBy: '-supported' | limitTo: pageSize:currentPage*pageSize">
+  <div id="{{'eintrag'+f.id}}" class="card" ng-mouseover="selectListElement(f)" ng-mouseleave="listMouseLeave(f)" ng-class="{'active': f.active, 'clicked': f.clicked, 'text-white': f.clicked}">
+    <div class="card-header text-white" ng-style="f.clicked? null:{'background-color': getColor(f.Status)}">
+      {{f.Status}}
+    </div>
+    <img class="img-fluid card-img-top" style="" ng-hide="false" src="/upload/{{(!f.Bild || f.Bild == '' || f.Bild == 'NULL')? 'platzhalter.jpg':f.Bild}}" style="max-width: 100%; height: auto">
+    <div class="card-body">
+      <h5 class="card-title" ng-class="{'text-white': f.clicked}">{{f.Titel}}</h5>
+          <p class="card-text" ng-show="f.more"><b ng-hide="!f.Loesung || f.Loesung=='' || f.Loesung=='NULL'">Problem<br/></b>{{f.Problem}}<br/><b ng-hide="!f.Loesung || f.Loesung=='' || f.Loesung=='NULL'">L&ouml;sung<br/></b>{{f.Loesung}}</p>
+          <a class="card-link cl" ng-class="{'text-white': f.clicked}" style="color: #e52b50; text-decoration: underline;" ng-click="f.more=!f.more;">{{f.more? 'Weniger':'Mehr'}}</a><br/>
+          <button class="btn btn-outline-secondary btn-sm" ng-class="{'text-white': f.clicked}" ng-style="f.user_supported? {cursor: 'default'}:null" ng-click="vote(f)"><span ng-hide="f.user_supported"><span class="fas fa-thumbs-up"></span> Voten</span><span ng-show="f.user_supported"><span class="fas fa-check"></span>Gevoted</span></button><span ng-class="{'text-white': f.clicked, 'text-muted': !f.clicked}">&nbsp;{{f.supported? f.supported:0}}x gevoted</span>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-sm-center">
+  <button class="btn btn-link btn-xl" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+          <span class="fas fa-chevron-left"></span>
+      </button>
+      {{currentPage+1}}/{{numberOfPages()}}
+      <button class="btn btn-link btn-xl" ng-disabled="currentPage >= markers.length/pageSize - 1" ng-click="currentPage=currentPage+1; scrollToListTop();">
+        <span class="fas fa-chevron-right"></span>
+      </button>
+  </div>
+</div>
+</div>
+</section>
+<section>
+<div class="container">
+<div class="row">
+<div class="col-sm-12 text-muted">
+&copy; <a href="https://github.com/albwe/radmelder/" target="_blank">Albert Wenzel</a>, 2018.
+</div>
+</div>
+</div>
+</section>
+</body>
+</html>

@@ -1,0 +1,143 @@
+.title {
+  text-align: center;
+}
+h1 {
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #045922;
+}
+h2 {
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #045922;
+}
+h5 {
+  //font-weight: 900;
+  //text-transform: uppercase;
+  color: #045922;
+}
+.karte {
+  padding: 0;
+  margin: 0
+}
+.einleitung {
+  background-color: #045922;
+  padding-top: 15px;
+}
+body {
+  //padding-top: 60px;
+  padding-bottom: 20px;
+  //background-color: #045922;
+  font-family: 'Titillium Web', sans-serif;
+  //color: white;
+}
+.btn.hinzuefuegen {
+  font-weight: 700;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 300px;
+  @include sans-serif-font;
+}
+.hinzuefuegen {
+  color: #045922;
+}
+.container {
+  background-color: white;
+}
+.cl {
+  cursor: pointer;
+}
+.form-success {
+  padding: 20px;
+}
+.eintrag {
+  border-top: 2px solid black;
+  margin-top: 15px;
+}
+.liste {
+  //padding-top: 15px;
+}
+.list-group-item-action.active {
+  background-color: #eeeeee;
+  border-color: #cccccc;
+  color: black;
+}
+.btn-link {
+  color: #e52b50;
+}
+.btn-xl {
+  padding: 1rem 2rem;
+}
+.markertitle {
+  font-size: 13pt;
+  font-family: 'Titillium Web';
+}
+.below-map {
+  padding-bottom: 15px;
+}
+.bg-green {
+  background-color: #045922;
+}
+.col-custom {
+  padding-left: 0;
+  padding-right: 0;
+}
+.einleitung-text {
+  color: rgba(255, 255, 255, 0.7);
+}
+.formular {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+nav {
+  background-color: rgba(255, 255, 255, 0.9);
+    //padding-left: 10px;
+}
+#mainNav>.container {
+  background: none;
+}
+b {
+  text-transform: uppercase;
+}
+.card.active {
+  background-color: #eeeeee;
+  border-color: #cccccc;
+  color: black;
+}
+.card-wrapper {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.card.clicked {
+  background-color: #045922;
+}
+.no-cl {
+  cursor: default;
+}
+form.form {
+  width:100%;
+}
+#main {
+  height: 500px;
+  width: 100%;
+}
+@media (max-height: 550px) {
+  #main {
+    height: 400px;
+  }
+}
+@media (max-height: 449px) {
+  #main {
+    height: 300px;
+  }
+}
+@media (max-height: 349px) {
+  #main {
+    height: 200px;
+  }
+}
+@media (max-height: 249px) {
+  #main {
+    height: 100px;
+  }
+}

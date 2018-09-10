@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf8" />
+  <title>Leezenstadt - Verwaltung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+   <link rel="stylesheet" href="../css/leaflet.css"
+     integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+     crossorigin=""/>
+     <link rel="stylesheet" href="../css/bootstrap.min.css"/>
+
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/../css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/leaflet.extra-markers.min.css">
+  <link rel="stylesheet" href="../css/ngDialog.min.css"/>
+  <link rel="stylesheet" href="../css/ngDialog-theme-plain.min.css"/>
+  <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+     <link rel="stylesheet" href="../css/style.css"/>
+  <script src="../js/angular.js"></script>
+  <script src="../js/angular-cookies.js"></script>
+  <script src="../js/angular-local-storage.min.js"></script>
+  <!--<script src="../js/angular-route.js"></script>-->
+  <script src="../js/angular-animate.js"></script>
+  <script src="../js/angular-touch.js"></script>
+  <script src="../js/angular-simple-logger.min.js"></script>
+  <script src="../js/ngDialog.min.js"></script>
+  <script src="../js/angular-image-compress.js"></script>
+  <script src="../js/ui-bootstrap-tpls-2.5.0.min.js"></script>
+
+  <script src="../js/ui-leaflet.min.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/leaflet.js"
+     integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+     crossorigin=""></script>
+     <script src="../js/leaflet.extra-markers.min.js"></script>
+</head>
+<body ng-app="radwege">
+  <div class="container" ng-controller="edit">
+    <h1>Verwaltung</h1>
+    <div class="row">
+      <div class="col-lg-4 col-sm-12">
+        <input type="text" style="width: 100%;" class="form-control" placeholder="Suchen" ng-model="suche"/>
+      </div>
+      <div class="col-lg-4 col-sm-12">
+        <h3>
+        <a class="badge" ng-class="{'cl': filtern.published!=0, 'badge-primary': filtern.published==0, 'badge-secondary': filtern.published!=0}" ng-click="filtern.published=0">Eingereicht</a>
+        <a class="badge" ng-class="{'cl': filtern.published!=1, 'badge-primary': filtern.published==1, 'badge-secondary': filtern.published!=1}" ng-click="filtern.published=1">Veröffentlicht</a>
+      </h3>
+      </div>
+      <div class="col-lg-4 col-sm-12">
+        Aktuelle Auswahl: {{filtered.length}} Einträge
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12" style="height: 500px; overflow:auto;">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Status</th>
+              <th>Timestamp</th>
+              <th>Titel</th>
+              <th>Problem</th>
+              <th>Ort</th>
+              <th>Notiz</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="cl" ng-repeat="e in eintraege | filter:suche | filter:filtern as filtered" ng-click="$parent.f=e; selecteditem()" ng-class="{'table-primary': $parent.f.id==e.id}">
+              <td>{{e.id}}</td>
+              <td>{{e.Status}}</td>
+              <td>{{e.timestamp}}</td>
+              <td>{{e.Titel}}</td>
+              <td>{{e.Problem | limitTo: 100}}...</td>
+              <td>{{e.position_text}}</td>
+              <td>{{e.service_note}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row eintrag">
+      <div class="col-lg-12"><h2>{{f.Titel}}&nbsp;&nbsp;<button class="btn btn-default" ng-click="save(f)"> Speichern</button>
+      <button class="btn btn-primary" ng-click="publish(f)" ng-disabled="f.published==1"> Speichern&Freigeben</button><button class="btn btn-danger" ng-click="decline(f)">Ablehnen</button></h2></div>
+      <form class="form">
+        <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="form-group">
+      	<label for="Titel">Titel/Ort*:</label>
+      	<input ng-model="f.Titel" type="text" name="Titel" value="" required class="form-control"><br>
+      </div>
+
+      <div class="form-group">
+        <label for="Adresse">Adresse </label>
+        <div class="input-group">
+        <input type="text" ng-model="f.position_text" name="adresse" class="form-control"/>
+        <div class="input-group-append">
+          <button class="btn btn-primary" ng-click="orten(f.position_text)">Orten</button>
+      </div>
+      </div>
+      <small class="text-muted form-text">Die Änderungen am Position-Text werden nicht gespeichert, lediglich die aktualisierten Koordinaten</small>
+      	<label for="Lat">Lat</label>
+      	<input disabled type="text" id="Lat" name="Lat" ng-model="f.lat" class="form-control">
+        <label for="lng">Lng</label>
+      	<input disabled type="text" id="lng" name="lng" ng-model="f.lng" class="form-control">
+      </div>
+      <leaflet id="editmap" style="width: 100%; height: 300px;" events="events" lf-center="center" markers="markers"></leaflet><br/>
+      <span ng-show="f.newlatlng">Lat: {{f.lat}}, Lng: {{f.lng}} <button class="btn btn-sm btn-outline-secondary" ng-click="resetlatlng(f)">Reset</button></span>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+
+      <div class="form-group">
+      	<label for="Problem">Problem:</label>
+      	<textarea name="Problem" ng-model="f.Problem" rows="3" cols="30" maxlength="1500" required class="form-control"></textarea><br>
+      </div>
+      <div class="form-group">
+        <label for="Status">Kategorie</label>
+        <select id="Status" ng-model="f.Status" class="custom-select">
+          <option value="Oberfläche">Oberfläche</option>
+          <option value="Verkehrsbeschilderung/ Markierung/ Beleuchtung">Verkehrsbeschilderung/ Markierung/ Beleuchtung</option>
+          <option value="Radwegweisung">Radwegweisung</option>
+          <option value="Behinderung">Behinderung</option>
+          <option value="Verkehrsführung">Verkehrsführung</option>
+          <option value="Straßenbauarbeiten">Straßenbauarbeiten</option>
+          <option value="Ampel">Ampel</option>
+          <option value="Abstellanlagen">Abstellanlagen</option>
+          <option value="Allgemeines">Allgemeines</option>
+          <option value="Sonstiges">Sonstiges</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="service_note">Interne Notiz</label>
+        <textarea id="service_note" ng-model="f.service_note" maxlength="1000" class="form-control"></textarea>
+      </div>
+      Mailkontakt: <a ng-class="{'cl': !f.mailing}" style="color: blue; text-decoration: underline;" ng-click="f.mailing? null:activatemail(f)">{{f.mail}}</a>
+      <div ng-show="mailing || f.mailing">
+        <div class="form-group" ng-hide="f.mailing">
+          <label for="betreff">Betreff</label>
+          <input name="betreff" type="text" class="form-control" ng-model="mail.subject" />
+        </div>
+        <div class="form-group">
+          <label for="nachricht">{{f.mailing? 'Mail versandt am '+f.mailing_time:'Nachricht'}}</label>
+          <textarea ng-disabled="f.mailing" rows="10" name="nachricht" class="form-control" ng-model="mail.message">{{f.mailing}}</textarea>
+        </div>
+        <button ng-hide="f.mailing" class="btn btn-primary btn-sm" ng-click="sendmail(f, mail)">Senden</button>&nbsp;<button ng-hide="f.mailing" class="btn btn-outline-secondary btn-sm" ng-click="resetmail()">Abbrechen</button>
+      </div>
+<img ng-hide="!f.Bild" style="width: 100%" src="/upload/{{f.Bild}}"/>
+<span ng-hide="!f.Bild"><br/><button class="btn btn-outline-secondary" ng-click="f.Bild=''"><i class="fas fa-times"></i> Bild entfernen</button></span>
+<span ng-show="!f.Bild">Kein Bild<br/>
+  <input id="takePictureField" ng-model="ownpoint.Foto" name="Foto" type="file" accept="image/*" class="form-control-file" image="imageupload" resize-max-height="1000" resize-max-width="1000" resize-quality="0.7" resize-type="image/jpg" ng-image-compress/><br/>
+  <button class="btn btn-outline-secondary" ng-click="upload(f)">Upload</button>
+</span>
+</div>
+</div
+    </form>
+    </div>
+  </div>
+
+</body>
+</html>
