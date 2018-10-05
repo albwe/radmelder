@@ -5,7 +5,14 @@ app.config(function (localStorageServiceProvider) {
   .setStorageCookie(120, '/', false)
   .setStorageCookieDomain('leezenstadt.de');
 });
-app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'leafletMarkerEvents', '$log', '$anchorScroll', 'localStorageService', '$timeout', function ($scope, $http, leafletData, leafletMapEvents, leafletMarkerEvents, $log, $anchorScroll, localStorageService, $timeout) {
+app.service('services', function () {
+  this.getMapboxGeocoding = function (data, mapboxConfig) {
+    var code = encodeURIComponent(data);
+    var area = mapboxConfig.area_corner;
+    return "https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox="+area.left_bottom.lng+","+area.left_bottom.lat+","+area.right_top.lng+","+area.right_top.lat+"&country=de&language=de&access_token="+mapboxConfig.access_token;
+  };
+});
+app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'leafletMarkerEvents', '$log', '$anchorScroll', 'localStorageService', '$timeout', 'services', 'appCfg', function ($scope, $http, leafletData, leafletMapEvents, leafletMarkerEvents, $log, $anchorScroll, localStorageService, $timeout, services, appCfg) {
   var icons = {
     redIcon: {
     type: 'extraMarker',
@@ -133,15 +140,6 @@ app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'l
           return "all";
         }
       };
-/*  var newScope = $scope.$new();
-  $log.log(f);
-  newScope.f = f;
-  ngDialog.open({
-    template: 'stellePopup',
-    className: 'ngdialog-theme-plain',
-    scope: newScope
-  })
-};*/
 $scope.goToElement = function(id) {
   var j;
   for(var i=0;i<$scope.markers.length;i++) {
@@ -160,40 +158,13 @@ $scope.goToElement = function(id) {
   }, 10);
 }
 $scope.$on("leafletDirectiveMap.main.click", function(event){
-  //$log.log("Hallo");
   $scope.defaults.scrollWheelZoom = true;
-  //$log.log(event);
-  /*if (!$scope.punktgewaehlt && $scope.erstwahl) {
-    //$log.log("Punkt nicht gewaehlt");
-               var leafEvent = args.leafletEvent;
-               $scope.ownpoint.lat = leafEvent.latlng.lat;
-               $scope.ownpoint.lng = leafEvent.latlng.lng;
-               $scope.ownpoint.latlng = leafEvent.latlng.lat.toString() + ", " + leafEvent.latlng.lng.toString();
-               $scope.ownpoint.visible = true;
-               $scope.ownpoint.message = "Der Punkt wurde übernommen.";
-               $scope.ownpoint.draggable = true;
-               //$scope.ownpoint.focus = true;
-               $scope.punktgewaehlt=true;
-               //$log.log($scope.ownpoint);
-      }*/
 });
   angular.extend($scope, {
     form_completed: false,
     punktgewaehlt: false,
-    new: {
-      lat: "",
-      lng: "",
-      Problem: "",
-      Sachverhalt: "",
-      Loesung: "",
-      Titel: "",
-      Bild: "",
-      position_text: "",
-      latlng: ""
-    },
     gps: function () {
       if (navigator.geolocation) {
-        $scope.new.latlng="Einen Moment bitte...";
         $scope.suche_laeuft = true;
     navigator.geolocation.getCurrentPosition(function(position){
       $scope.$apply(function(){
@@ -224,10 +195,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
                     enable: leafletMapEvents.getAvailableMapEvents(),
                     logic: 'emit'
                 }
-    },/*{
-        markers: {
-          enable: leafletMarkerEvents.getAvailableEvents()
-    }}*/
+    },
     selectListElement: function (f) {
       if (!f.active) {
         var m;
@@ -312,14 +280,14 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     }
   },
   addpoint: false,
-    muenster: {
-      lng: 7.6254,
-    	lat: 51.9623,
-    	zoom: 13
+    main_center: {
+      lng: appCfg.geo_data.main_map_center.lng,
+    	lat: appCfg.geo_data.main_map_center.lat,
+    	zoom: appCfg.settings.main_map_zoom
     },
     icons: icons,
     tiles: {
-      url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw',
+      url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token='+appCfg.mapbox.access_token,
       options: {
         id: 'mapbox.streets',
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' + 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
@@ -358,8 +326,8 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     });
     $scope.ownpoint = {
       icon: icons.whiteIcon,
-      lng: 7.617774,
-      lat: 51.964398,
+      lng: appCfg.geo_data.default_point.lng,
+      lat: appCfg.geo_data.default_point.lat,
       Problem: "",
       Sachverhalt: "",
       Loesung: "",
@@ -371,9 +339,9 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
       mail: ""
     };
     $scope.owncenter = {
-      lat: 51.964398,
-      lng: 7.617774,
-      zoom: 17
+      lng: appCfg.geo_data.default_point.lng,
+      lat: appCfg.geo_data.default_point.lat,
+      zoom: appCfg.settings.add_point_map_zoom
     };
     $scope.$on("leafletDirectiveMarker.ownpoint.dragend", function (elem, args) {
       $scope.marker_gezogen = true;
@@ -387,9 +355,9 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
       $scope.ownpoint.lng = args.leafletEvent.latlng.lng;
     });
     $scope.suchen = function (q) {
-      var code = encodeURIComponent(q);
+      //var code = encodeURIComponent(q);
       $scope.suche_laeuft=true;
-      $http.get("https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox=7.4737852,51.8401447,7.7743634,52.060025&country=de&language=de&access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw").then(function (response) {
+      $http.get(services.getMapboxGeocoding(q, appCfg.mapbox)).then(function (response) {
         if(response.data.features.length>0) {
         var coords = response.data.features[0].geometry.coordinates;
         $log.log(coords);
@@ -429,8 +397,8 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     $scope.clear_form = function() {
       $scope.ownpoint = {
         icon: icons.whiteIcon,
-        lng: 7.617774,
-        lat: 51.964398,
+        lng: appCfg.geo_data.default_point.lng,
+        lat: appCfg.geo_data.default_point.lat,
         Problem: "",
         Loesung: "",
         Titel: "",
@@ -480,7 +448,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     $scope.send_new2 = function () {
       $scope.inprogress = true;
       var data = angular.copy($scope.ownpoint);
-      var code = encodeURIComponent(data.position_text);
+      var code = data.position_text;
       if($scope.imageupload) {
         data.BildURI = $scope.imageupload.compressed.dataURL;
       }
@@ -488,7 +456,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         data.BildURI = "";
       }
       if (!$scope.standort_ermittelt) {
-        $http.get("https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox=7.4737852,51.8401447,7.7743634,52.060025&country=de&language=de&access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw").then(function (response) {
+        $http.get(services.getMapboxGeocoding(code, appCfg.mapbox)).then(function (response) {
           var coords = response.data.features[0].geometry.coordinates;
           data.lng = coords[0];
           data.lat = coords[1];
@@ -505,212 +473,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
       });
     }
   };
-    $scope.send_new=function() {
-      $scope.inprogress = true;
-      var data = angular.copy($scope.ownpoint);
-      code = encodeURIComponent(data.position_text);
-      if(document.getElementById('takePictureField').files.length>0) {
-      var text = "";
-      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-      for (var i = 0; i < 20; i++) {
-          text += possible.charAt(Math.floor(Math.random() * possible.length));
-      }
-      text+=".jpg";
-
-      data.Bild=text;
-      var fd = new FormData();
-      var files = document.getElementById('takePictureField').files[0];
-      $log.log(files);
-      fd.append('file',files);
-      fd.append('filename', text);
-      $log.log(fd.get('file'));
-      // AJAX request
-      $http({
-       method: 'post',
-       url: 'php/upload.php',
-       data: fd,
-       headers: {'Content-Type': undefined},
-      }).then(function successCallback(response) {
-        // Store response data
-        $log.log(response);
-        if (!$scope.standort_ermittelt) {
-          $http.get("https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox=7.4737852,51.8401447,7.7743634,52.060025&country=de&language=de&access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw").then(function (response) {
-            var coords = response.data.features[0].geometry.coordinates;
-            data.lng = coords[0];
-            data.lat = coords[1];
-        $http.post("php/new.php", JSON.stringify(data)).then(function (response) {
-          $scope.form_completed = true;
-          $scope.inprogress = false;
-        });
-      });
-    }
-    else {
-      $http.post("php/new.php", JSON.stringify(data)).then(function (response) {
-        $scope.form_completed = true;
-        $scope.inprogress = false;
-      });
-    }
-      });
-    }
-    else {
-      if (!$scope.standort_ermittelt) {
-        $http.get("https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox=7.4737852,51.8401447,7.7743634,52.060025&country=de&language=de&access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw").then(function (response) {
-          var coords = response.data.features[0].geometry.coordinates;
-          data.lng = coords[0];
-          data.lat = coords[1];
-      $http.post("php/new.php", JSON.stringify(data)).then(function (response) {
-        $scope.form_completed = true;
-        $scope.inprogress = false;
-      });
-    });
-  }
-  else {
-    $http.post("php/new.php", JSON.stringify(data)).then(function (response) {
-      $scope.form_completed = true;
-      $scope.inprogress = false;
-    });
-    }
-    }
-  };
   $scope.scrollToListTop = function () {
     $anchorScroll("problemliste");
   }
-}]);
-app.controller("edit", ['$scope', '$http', '$filter', 'leafletMarkerEvents', '$log', 'leafletData', '$timeout', function($scope, $http, $filter, leafletMarkerEvents, $log, leafletData, $timeout) {
-  var whiteIcon = {
-    type: 'extraMarker',
-    markerColor: 'white'
-  };
-  $scope.filtern= {
-    published: 0
-  }
-  $scope.events = {
-                markers: {
-                    enable: leafletMarkerEvents.getAvailableEvents(),
-                }
-              };
-  $scope.resetlatlng = function (f) {
-    f.lat = f.oldlat;
-    f.lng = f.oldlng;
-    f.newlatlng = false;
-  };
-  $scope.save = function (f) {
-    $http.post("savechange.php", JSON.stringify(f)).then(function (response) {
-      if (response.data.success=="1") {
-        alert("Änderungen gespeichert. Der Eintrag ist aber noch nicht freigeschaltet.");
-      }
-    });
-  };
-  $scope.publish = function (f) {
-    $http.post("publish.php", JSON.stringify(f)).then(function (response) {
-      if (response.data.success=="1") {
-        alert("Änderungen gespeichert. Der Eintrag ist freigeschaltet.");
-        //$scope.$apply(function () {
-        $scope.eintraege.splice($scope.eintraege.indexOf(f), 1);
-        $scope.f = $filter('filter')($scope.eintraege, $scope.filtern)[0];
-        $scope.selecteditem();
-        //});
-      }
-    });
-  };
-  $scope.decline = function (f) {
-    if (confirm("Den Eintrag wirklich löschen?")) {
-      $http.post("decline.php", JSON.stringify({id: f.id})).then(function (response) {
-        //$scope.$apply(function () {
-        $scope.eintraege.splice($scope.eintraege.indexOf(f), 1);
-        $scope.f = $filter('filter')($scope.eintraege, $scope.filtern)[0];
-        $scope.selecteditem();
-        //});
-      });
-  }
-};
-$scope.orten = function (q) {
-  var code = encodeURIComponent(q);
-  $scope.suche_laeuft=true;
-  $http.get("https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox=7.4737852,51.8401447,7.7743634,52.060025&country=de&language=de&access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw").then(function (response) {
-    if (response.data.features[0]) {
-    var coords = response.data.features[0].geometry.coordinates;
-    $log.log(coords);
-    $scope.f.lat = coords[1];
-    $scope.f.lng = coords[0];
-    $scope.f.oldlat = coords[1];
-    $scope.f.oldlng = coords[0];
-    $scope.center.lat = $scope.f.lat;
-    $scope.center.lng = $scope.f.lng;
-  }
-  else {
-    alert("Das konnte leider nicht gefunden werden");
-  }
-  })
-};
-$scope.upload = function (f) {
-  var data = {id: f.id};
-  data.BildURI = $scope.imageupload.compressed.dataURL;
-  $http.post("upload.php", JSON.stringify(data)).then(function (response) {
-    $scope.f.Bild = response.data;
-  })
-};
-$scope.$on('leafletDirectiveMarker.editmap.dragend', function (e, args) {
-      $scope.f.newlatlng = true;
-      $scope.f.lat = args.model.lat;
-      $scope.f.lng = args.model.lng;
-});
-  $http.get("getunpublished.php").then(function (response) {
-    var markers = response.data.markers;
-    for (var i=0; i<markers.length; i++) {
-      markers[i].draggable = true;
-      markers[i].icon = whiteIcon;
-      markers[i].lat = Number(markers[i].lat);
-      markers[i].lng = Number(markers[i].lng);
-      markers[i].oldlat = Number(markers[i].lat);
-      markers[i].oldlng = Number(markers[i].lng);
-    }
-    $scope.eintraege = markers;
-    $scope.f = $filter('filter')($scope.eintraege, $scope.filtern)[0];
-    $scope.selecteditem();
-  });
-  $scope.mail = {
-    subject: "Rückfrage zu Ihrem Leezenstadt-Beitrag",
-    message:""
-  };
-  $scope.activatemail = function (f) {
-    $scope.mail.message = "Liebe*r Nutzer*in!\n\nWir danken Ihnen sehr für Ihren Beitrag "+f.Titel+".\n\nLeider ist bei uns dazu kein Foto eingegangen. Da es immer zu technischen Problemen kommen kann, haken wir lieber noch einmal nach: Haben Sie ein Foto eingesandt?\n\nWir freuen uns über eine Rückmeldung und ggf. die Zusendung eines Fotos. Danach veröffentlichen wir Ihren Eintrag. Sie können gern auch noch ein Foto nachreichen.\n\n Vielen Dank für Ihre Beteiligung!\n\nIhr Leezenstadt-Team\n\n[Interne ID: "+f.id+"]";
-    $scope.mailing=true;
-  };
-$scope.sendmail = function (f, m) {
-  m.id = f.id;
-  m.address = f.mail;
-  $http.post("mail.php", JSON.stringify(m)).then(function (response) {
-    alert(response.data);
-    $scope.mailing=false;
-    $scope.mail = {
-      subject: "Rückfrage zu Ihrem Leezenstadt-Beitrag",
-      message:""
-    };
-  });
-};
-$scope.resetmail = function () {
-  $scope.mailing=false;
-  $scope.mail = {
-    subject: "Rückfrage zu Ihrem Leezenstadt-Beitrag",
-    message: $scope.f.mailing? $scope.f.mailing: "",
-  };
-};
-$scope.selecteditem = function () {
-  $scope.resetmail();
-  $scope.markers.f = $scope.f;
-  $scope.center.lat = $scope.f.lat;
-  $scope.center.lng = $scope.f.lng;
-  $timeout(function () {
-  leafletData.getMap("editmap").then(function (map) {
-    map.invalidateSize();
-  });}, 2);
-};
-$scope.center = {
-  lat: 51.964398,
-  lng: 7.617774,
-  zoom: 18
-};
-$scope.markers = {};
 }]);
