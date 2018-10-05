@@ -3,7 +3,7 @@ app.config(function (localStorageServiceProvider) {
   localStorageServiceProvider
   .setPrefix('melder')
   .setStorageCookie(120, '/', false)
-  .setStorageCookieDomain('leezenstadt.de');
+  .setStorageCookieDomain('albwe.de');
 });
 app.service('services', function () {
   this.getMapboxGeocoding = function (data, mapboxConfig) {

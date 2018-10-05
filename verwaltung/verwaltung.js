@@ -1,4 +1,4 @@
-ngular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'leafletMarkerEvents', '$log', 'leafletData', '$timeout', function($scope, $http, $filter, leafletMarkerEvents, $log, leafletData, $timeout) {
+ngular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'leafletMarkerEvents', '$log', 'leafletData', '$timeout', 'services', 'appCfg', function($scope, $http, $filter, leafletMarkerEvents, $log, leafletData, $timeout, services, appCfg) {
   var whiteIcon = {
     type: 'extraMarker',
     markerColor: 'white'
@@ -47,9 +47,9 @@ ngular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'leaf
   }
 };
 $scope.orten = function (q) {
-  var code = encodeURIComponent(q);
+  //var code = encodeURIComponent(q);
   $scope.suche_laeuft=true;
-  $http.get("https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox=7.4737852,51.8401447,7.7743634,52.060025&country=de&language=de&access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw").then(function (response) {
+  $http.get(services.getMapboxGeocoding(q, appCfg.mapbox)).then(function (response) {
     if (response.data.features[0]) {
     var coords = response.data.features[0].geometry.coordinates;
     $log.log(coords);
@@ -92,11 +92,11 @@ $scope.$on('leafletDirectiveMarker.editmap.dragend', function (e, args) {
     $scope.selecteditem();
   });
   $scope.mail = {
-    subject: "Rückfrage zu Ihrem Leezenstadt-Beitrag",
+    subject: "Rückfrage zu Ihrem Radmelder-Beitrag",
     message:""
   };
   $scope.activatemail = function (f) {
-    $scope.mail.message = "Liebe*r Nutzer*in!\n\nWir danken Ihnen sehr für Ihren Beitrag "+f.Titel+".\n\nLeider ist bei uns dazu kein Foto eingegangen. Da es immer zu technischen Problemen kommen kann, haken wir lieber noch einmal nach: Haben Sie ein Foto eingesandt?\n\nWir freuen uns über eine Rückmeldung und ggf. die Zusendung eines Fotos. Danach veröffentlichen wir Ihren Eintrag. Sie können gern auch noch ein Foto nachreichen.\n\n Vielen Dank für Ihre Beteiligung!\n\nIhr Leezenstadt-Team\n\n[Interne ID: "+f.id+"]";
+    $scope.mail.message = "Liebe*r Nutzer*in!\n\nWir danken Ihnen sehr für Ihren Beitrag "+f.Titel+".\n\nLeider ist bei uns dazu kein Foto eingegangen. Da es immer zu technischen Problemen kommen kann, haken wir lieber noch einmal nach: Haben Sie ein Foto eingesandt?\n\nWir freuen uns über eine Rückmeldung und ggf. die Zusendung eines Fotos. Danach veröffentlichen wir Ihren Eintrag. Sie können gern auch noch ein Foto nachreichen.\n\n Vielen Dank für Ihre Beteiligung!\n\nIhr Radmelder-Team\n\n[Interne ID: "+f.id+"]";
     $scope.mailing=true;
   };
 $scope.sendmail = function (f, m) {
@@ -106,7 +106,7 @@ $scope.sendmail = function (f, m) {
     alert(response.data);
     $scope.mailing=false;
     $scope.mail = {
-      subject: "Rückfrage zu Ihrem Leezenstadt-Beitrag",
+      subject: "Rückfrage zu Ihrem Radmelder-Beitrag",
       message:""
     };
   });
@@ -114,7 +114,7 @@ $scope.sendmail = function (f, m) {
 $scope.resetmail = function () {
   $scope.mailing=false;
   $scope.mail = {
-    subject: "Rückfrage zu Ihrem Leezenstadt-Beitrag",
+    subject: "Rückfrage zu Ihrem Radmelder-Beitrag",
     message: $scope.f.mailing? $scope.f.mailing: "",
   };
 };
@@ -129,9 +129,9 @@ $scope.selecteditem = function () {
   });}, 2);
 };
 $scope.center = {
-  lat: 51.964398,
-  lng: 7.617774,
-  zoom: 18
+  lat: appCfg.geo_data.default_point.lat,
+  lng: appCfg.geo_data.default_point.lng,
+  zoom: appCfg.settings.edit_point_map_zoom
 };
 $scope.markers = {};
 }]);
