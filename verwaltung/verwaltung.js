@@ -1,4 +1,4 @@
-ngular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'leafletMarkerEvents', '$log', 'leafletData', '$timeout', 'services', 'appCfg', function($scope, $http, $filter, leafletMarkerEvents, $log, leafletData, $timeout, services, appCfg) {
+angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'leafletMarkerEvents', '$log', 'leafletData', '$timeout', 'services', 'appCfg', function($scope, $http, $filter, leafletMarkerEvents, $log, leafletData, $timeout, services, appCfg) {
   var whiteIcon = {
     type: 'extraMarker',
     markerColor: 'white'
