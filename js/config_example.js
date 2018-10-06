@@ -33,7 +33,8 @@ angular.module("radwege").constant('appCfg', {
         },
         privacy_note: "Ich stimme der Speicherung meiner E-Mail-Adresse, der anonymisierten Veröffentlichung meiner Einreichung und der Nutzung meines Bildes zu.",
         success_note: "Vielen Dank für die Einsendung. Der Beitrag wird von uns geprüft und dann online gestellt."
-      }
+      },
+      imprint: "&copy; <a href='https://github.com/albwe/radmelder/' target='_blank'>Albert Wenzel</a>, 2018."
     },
     mapbox: {
       access_token: "",
