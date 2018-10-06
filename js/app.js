@@ -1,4 +1,4 @@
-var app = angular.module("radwege", ['ui-leaflet', 'ngCookies', 'LocalStorageModule', 'ui.bootstrap', 'ngImageCompress']);
+var app = angular.module("radwege", ['ui-leaflet', 'ngCookies', 'LocalStorageModule', 'ui.bootstrap', 'ngImageCompress', 'ngSanitize']);
 app.config(function (localStorageServiceProvider) {
   localStorageServiceProvider
   .setPrefix('melder')
@@ -114,6 +114,7 @@ app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'l
   $scope.getColor = function (status) {
     return getColor(getLayer(status));
   };
+  $scope.visuals = appCfg.visuals;
     var getLayer = function (status) {
       switch (status) {
         case "Gemeldet":
@@ -226,7 +227,6 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
       }
     },
     layers: {
-      baselayers: null,
       overlays: {
       obe: {
         name: "<span class='fa fa-circle' style='color: "+getColor("obe")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("obe")+"'>Oberfläche</span>",

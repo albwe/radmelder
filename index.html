@@ -23,8 +23,8 @@
 <script src="js/angular-touch.js"></script>
 <script src="js/angular-simple-logger.min.js"></script>
 <script src="js/angular-image-compress.js"></script>
-<script src="js/ngDialog.min.js"></script>
 <script src="js/ui-bootstrap-tpls-2.5.0.min.js"></script>
+<script src="js/angular-sanitize.js"></script>
 
 <script src="js/ui-leaflet.min.js"></script>
 <script src="js/app.js"></script>
@@ -38,7 +38,7 @@
 <body ng-app="radwege"  ng-controller="core">
   <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
     <div class="container">
-      <a class="navbar-brand js-scroll-trigger" href="#page-top">Radmelder</a>
+      <a class="navbar-brand js-scroll-trigger" href="#page-top"><img ng-show="visuals.logo" src="{{visuals.logo}}" style="height: 1em;"/><span ng-show="visuals.logo">&nbsp;&nbsp;</span>{{visuals.header_title}}</a>
     </div>
   </nav>
 <div class="container-fluid karte">
@@ -53,19 +53,10 @@
 <div class="row">
 
   <div class="col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12 col-xs-12">
-    <h3 class="text-white">Kleine Schritte – Große Wirkung: <b>Fahrradweg-Melder</b> für
-  Musterstadt!</h3>
-    <p class="einleitung-text">
-Markiere auf dieser Karte, wo das Fahrradfahren in Musterstadt für dich
-unbequem, stressig oder gar gefährlich wird. Teile uns die Problemstelle
-möglichst genau mit, indem du am besten auch ein Foto davon hochlädst. Beschreibe,
-was dich stört und warum. Äußere deinen Verbesserungsvorschlag. Das hat
-schon vor dir jemand gemacht? Dann vote es hoch! Wenn du willst, kannst du uns auch deine Mailadresse hinterlassen, damit wir dich bei Unklarheiten kontaktieren können.
-</p><p class="einleitung-text">
-Dein Fahrrad. Dein Weg. Deine Stadt. Packen wir es an!</p>
-      </p>
+    <h3 class="text-white" ng-bind-html="visuals.main.title"></h3>
+    <p class="einleitung-text" ng-repeat="c in visuals.main.content">{{c}}</p>
     </div></div><div class="row"> <div class="col-lg-12" style="text-align: center;">
-      <a style="color: #045922;" ng-click="addpoint=!addpoint;" class="btn btn-light btn-xl cl hinzuefuegen"></span>Problem melden</a>
+      <a style="color: #045922;" ng-click="addpoint=!addpoint;" class="btn btn-light btn-xl cl hinzuefuegen"></span>{{visuals.main.call_to_action}}</a>
     </div>
 </div>
 </div>
@@ -112,13 +103,13 @@ Dein Fahrrad. Dein Weg. Deine Stadt. Packen wir es an!</p>
 </div>
 
 <div class="form-group">
-  <label for="mail">E-Mail-Adresse für Rückfragen (wird nicht veröffentlicht)</label>
+  <label for="mail">{{visuals.form.mail.label}}</label>
   <input type="email" ng-model="ownpoint.mail" name="mail" class="form-control"/>
-  <small class="form-text text-muted">Gib deine Mail-Adresse für evtl. Rückfragen an.</small>
+  <small class="form-text text-muted">{{visuals.form.mail.caption}}</small>
 </div>
 
 <div class="form-check">
-  <label for="datenschutzCheck" class="form-check-label">Ich stimme der Speicherung meiner E-Mail-Adresse, der anonymisierten Veröffentlichung meiner Einreichung und der Nutzung meines Bildes zu.
+  <label for="datenschutzCheck" class="form-check-label">{{visuals.form.privacy_note}}</label>
 </div>
 	<button class="btn btn-primary" ng-click="send_new2()" name="absenden">Absenden</button>
   <div class="progress" ng-show="inprogress">
@@ -128,7 +119,7 @@ Dein Fahrrad. Dein Weg. Deine Stadt. Packen wir es an!</p>
 </form>
 </div>
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-success" ng-show="form_completed">
-  <span class="fas fa-check"></span>&nbsp;Vielen Dank für Ihre Einsendung. Der Beitrag wird von uns geprüft und dann online gestellt. <button class="btn btn-primary" ng-click="clear_form()">Weitere Stelle einreichen.</button>
+  <span class="fas fa-check"></span>&nbsp; {{visuals.form.success_note}} <button class="btn btn-primary" ng-click="clear_form()">Weitere Stelle einreichen.</button>
 </div>
 </div>
 </div>
