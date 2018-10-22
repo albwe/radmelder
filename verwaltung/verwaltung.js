@@ -4,7 +4,8 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
     markerColor: 'white'
   };
   $scope.filtern= {
-    published: 0
+    published: 0,
+    declined: 0
   }
   $scope.events = {
                 markers: {
@@ -36,7 +37,8 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
     });
   };
   $scope.decline = function (f) {
-    if (confirm("Den Eintrag wirklich löschen?")) {
+    var verb = f.published==0?'löschen':'verwerfen';
+    if (confirm("Den Eintrag wirklich "+verb+"?")) {
       $http.post("decline.php", JSON.stringify({id: f.id})).then(function (response) {
         //$scope.$apply(function () {
         $scope.eintraege.splice($scope.eintraege.indexOf(f), 1);

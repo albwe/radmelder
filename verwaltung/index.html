@@ -44,10 +44,11 @@
         <input type="text" style="width: 100%;" class="form-control" placeholder="Suchen" ng-model="suche"/>
       </div>
       <div class="col-lg-4 col-sm-12">
-        <h3>
-        <a class="badge" ng-class="{'cl': filtern.published!=0, 'badge-primary': filtern.published==0, 'badge-secondary': filtern.published!=0}" ng-click="filtern.published=0">Eingereicht</a>
-        <a class="badge" ng-class="{'cl': filtern.published!=1, 'badge-primary': filtern.published==1, 'badge-secondary': filtern.published!=1}" ng-click="filtern.published=1">Veröffentlicht</a>
-      </h3>
+        <h5 style="color: white;">
+        <a class="badge" ng-class="{'cl': filtern.published!=0, 'badge-primary': filtern.published==0, 'badge-secondary': filtern.published!=0}" ng-click="filtern.published=0; filtern.declined=0;">Eingereicht</a>
+        <a class="badge" ng-class="{'cl': filtern.published+filtern.declined!=1, 'badge-primary': filtern.published+filtern.declined==1, 'badge-secondary': filtern.published+filtern.declined!=1}" ng-click="filtern.published=1; filtern.declined=0;">Veröffentlicht</a>
+        <a class="badge" ng-class="{'cl': filtern.declined!=1, 'badge-primary': filtern.declined==1, 'badge-secondary': filtern.declined!=1}" ng-click="filtern.declined=1; filtern.published=1;">Verworfen</a>
+      </h5>
       </div>
       <div class="col-lg-4 col-sm-12">
         Aktuelle Auswahl: {{filtered.length}} Einträge
@@ -82,8 +83,8 @@
       </div>
     </div>
     <div class="row eintrag">
-      <div class="col-lg-12"><h2>{{f.Titel}}&nbsp;&nbsp;<button class="btn btn-default" ng-click="save(f)"> Speichern</button>
-      <button class="btn btn-primary" ng-click="publish(f)" ng-disabled="f.published==1"> Speichern&Freigeben</button><button class="btn btn-danger" ng-click="decline(f)">Ablehnen</button></h2></div>
+      <div class="col-lg-12"><h2>{{f.Titel}}&nbsp;&nbsp;<button class="btn" ng-class="{'btn-default': f.published==0, 'btn-primary': f.published==1}" ng-click="save(f)"> Speichern</button>
+      <button class="btn btn-primary" ng-click="publish(f)" ng-disabled="f.published==1" ng-hide="f.published==1"> Speichern&Freigeben</button><button class="btn" ng-class="{'btn-danger': f.published==0, 'btn-default': f.published==1}" ng-click="decline(f)">Verwerfen</button></h2></div>
       <form class="form">
         <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
