@@ -5,12 +5,69 @@ app.config(function (localStorageServiceProvider) {
   .setStorageCookie(120, '/', false)
   .setStorageCookieDomain('albwe.de');
 });
-app.service('services', function () {
-  this.getMapboxGeocoding = function (data, mapboxConfig) {
+app.factory('services', function () {
+  var object = {
+  getMapboxGeocoding: function (data, mapboxConfig) {
     var code = encodeURIComponent(data);
     var area = mapboxConfig.area_corner;
     return "https://api.mapbox.com/geocoding/v5/mapbox.places/"+code+".json?limit=1&bbox="+area.left_bottom.lng+","+area.left_bottom.lat+","+area.right_top.lng+","+area.right_top.lat+"&country=de&language=de&access_token="+mapboxConfig.access_token;
-  };
+  },
+  getColor: function (layer) {
+    switch (layer) {
+      case "gem":
+        return "#f5b730";
+      case "obe":
+        return "#f5b730";
+      case "sch":
+        return "#009244";
+      case "weg":
+        return "#9c262a";
+      case "beh":
+        return "#1a586a";
+      case "fue":
+        return "#4d2860";
+      case "str":
+        return "#ee8918";
+      case "amp":
+        return "#25a3db";
+      case "abs":
+        return "#ba4898";
+      case "son":
+        return "#231f20";
+      case "all":
+        return "#231f20";
+    }
+  },
+  getLayer: function (status) {
+    switch (status) {
+      case "Gemeldet":
+        return "gem";
+      case "Oberfläche":
+        return "obe";
+      case "Verkehrsbeschilderung/ Markierung/ Beleuchtung":
+        return "sch";
+      case "Radwegweisung":
+        return "weg";
+      case "Behinderung":
+        return "beh";
+      case "Verkehrsführung":
+        return "fue";
+      case "Straßenbauarbeiten":
+        return "str";
+      case "Ampel":
+        return "amp";
+      case "Abstellanlagen":
+        return "abs";
+      case "Sonstiges":
+        return "son";
+      case "Allgemeines":
+        return "all";
+      }
+    },
+    getColorFromStatus: function (status) {
+      return object.getColor(object.getLayer(status));
+    }};
+    return object;
 });
 app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'leafletMarkerEvents', '$log', '$anchorScroll', 'localStorageService', '$timeout', 'services', 'appCfg', function ($scope, $http, leafletData, leafletMapEvents, leafletMarkerEvents, $log, $anchorScroll, localStorageService, $timeout, services, appCfg) {
   var icons = {
@@ -85,62 +142,9 @@ app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'l
         return icons.blackIcon;
       }
     };
-    var getColor = function (layer) {
-      switch (layer) {
-        case "gem":
-          return "#f5b730";
-        case "obe":
-          return "#f5b730";
-        case "sch":
-          return "#009244";
-        case "weg":
-          return "#9c262a";
-        case "beh":
-          return "#1a586a";
-        case "fue":
-          return "#4d2860";
-        case "str":
-          return "#ee8918";
-        case "amp":
-          return "#25a3db";
-        case "abs":
-          return "#ba4898";
-        case "son":
-          return "#231f20";
-        case "all":
-          return "#231f20";
-    }
-  };
-  $scope.getColor = function (status) {
-    return getColor(getLayer(status));
-  };
+
+  $scope.getColor = services.getColorFromStatus;
   $scope.visuals = appCfg.visuals;
-    var getLayer = function (status) {
-      switch (status) {
-        case "Gemeldet":
-          return "gem";
-        case "Oberfläche":
-          return "obe";
-        case "Verkehrsbeschilderung/ Markierung/ Beleuchtung":
-          return "sch";
-        case "Radwegweisung":
-          return "weg";
-        case "Behinderung":
-          return "beh";
-        case "Verkehrsführung":
-          return "fue";
-        case "Straßenbauarbeiten":
-          return "str";
-        case "Ampel":
-          return "amp";
-        case "Abstellanlagen":
-          return "abs";
-        case "Sonstiges":
-          return "son";
-        case "Allgemeines":
-          return "all";
-        }
-      };
 $scope.goToElement = function(id) {
   var j;
   for(var i=0;i<$scope.markers.length;i++) {
@@ -229,7 +233,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     layers: {
       overlays: {
       obe: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("obe")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("obe")+"'>Oberfläche</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("obe")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("obe")+"'>Oberfläche</span>",
         type: "group",
         visible: true
       },
@@ -238,42 +242,42 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         type: "group"
       },
       sch: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("sch")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("sch")+"'>Verkehrsbeschilderung/ Markierung/ Beleuchtung</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("sch")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("sch")+"'>Verkehrsbeschilderung/ Markierung/ Beleuchtung</span>",
         type: "group",
         visible: true
       },
       weg: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("weg")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("weg")+"'>Radwegweisung</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("weg")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("weg")+"'>Radwegweisung</span>",
         type: "group",
         visible: true
       },
       beh: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("beh")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("beh")+"'>Behinderung</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("beh")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("beh")+"'>Behinderung</span>",
         type: "group",
         visible: true
       },
       fue: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("fue")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("fue")+"'>Verkehrsführung</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("fue")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("fue")+"'>Verkehrsführung</span>",
         type: "group",
         visible: true
       },
       str: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("str")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("str")+"'>Straßenbauarbeiten</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("str")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("str")+"'>Straßenbauarbeiten</span>",
         type: "group",
         visible: true
       },
       amp: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("amp")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("amp")+"'>Ampel</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("amp")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("amp")+"'>Ampel</span>",
         type: "group",
         visible: true
       },
       abs: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("abs")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("abs")+"'>Abstellanlagen</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("abs")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("abs")+"'>Abstellanlagen</span>",
         type: "group",
         visible: true
       },
       son: {
-        name: "<span class='fa fa-circle' style='color: "+getColor("son")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+getColor("son")+"'>Sonstiges</span>",
+        name: "<span class='fa fa-circle' style='color: "+services.getColor("son")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("son")+"'>Sonstiges</span>",
         type: "group",
         visible: true
       },
@@ -308,12 +312,12 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         //markers[i].layer = markers[i].Status;
         markers[i].lat = Number(markers[i].lat);
         markers[i].lng = Number(markers[i].lng);
-        markers[i].layer = getLayer(markers[i].Status);
+        markers[i].layer = services.getLayer(markers[i].Status);
         bild = "";
         if (markers[i].Bild) {
           bild = "<div><img style=\"max-width: 100%; max-height: 200px;\" src=\"/upload/"+markers[i].Bild+"\"></div>";
         }
-      markers[i].message =  bild + "<h5 class=\"markertitle\">"+markers[i].Titel+"<span class=\"badge badge-secondary\" style=\"background-color: "+getColor(getLayer(markers[i].Status))+";\">"+markers[i].Status+"</span></h5><p ng-show=\"show"+markers[i].id+"\">"+markers[i].Problem+"</p><button class='btn btn-outline-secondary btn-sm cl' ng-click=\"show"+markers[i].id+"=!show"+markers[i].id+";\" ng-hide=\"show"+markers[i].id+"\">Mehr</button><button class=\"btn btn-outline-secondary btn-sm\" ng-class=\"{'text-white': markers["+i+"].clicked\" ng-style=\"markers["+i+"].user_supported? {cursor: 'default'}:null\" ng-click=\"vote(markers["+i+"])\"><span ng-hide=\"markers["+i+"].user_supported\"><span class=\"fas fa-thumbs-up\"></span> Voten</span><span ng-show=\"markers["+i+"].user_supported\"><span class=\"fas fa-check\"></span>Gevoted</span></button><span ng-class=\"{'text-white': markers["+i+"].clicked, 'text-muted': !f.clicked}\">&nbsp;{{markers["+i+"].supported? markers["+i+"].supported:0}}x gevoted</span>";
+      markers[i].message =  bild + "<h5 class=\"markertitle\">"+markers[i].Titel+"<span class=\"badge badge-secondary\" style=\"background-color: "+services.getColorFromStatus(markers[i].Status)+";\">"+markers[i].Status+"</span></h5><p ng-show=\"show"+markers[i].id+"\">"+markers[i].Problem+"</p><button class='btn btn-outline-secondary btn-sm cl' ng-click=\"show"+markers[i].id+"=!show"+markers[i].id+";\" ng-hide=\"show"+markers[i].id+"\">Mehr</button><button class=\"btn btn-outline-secondary btn-sm\" ng-class=\"{'text-white': markers["+i+"].clicked\" ng-style=\"markers["+i+"].user_supported? {cursor: 'default'}:null\" ng-click=\"vote(markers["+i+"])\"><span ng-hide=\"markers["+i+"].user_supported\"><span class=\"fas fa-thumbs-up\"></span> Voten</span><span ng-show=\"markers["+i+"].user_supported\"><span class=\"fas fa-check\"></span>Gevoted</span></button><span ng-class=\"{'text-white': markers["+i+"].clicked, 'text-muted': !f.clicked}\">&nbsp;{{markers["+i+"].supported? markers["+i+"].supported:0}}x gevoted</span>";
         markers[i].getMessageScope = function () {return $scope;};
         markers[i].supported = markers[i].supported? parseInt(markers[i].supported) : 0;
         if (localStorageService.keys().indexOf(markers[i].id)!=-1) {
