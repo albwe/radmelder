@@ -7,7 +7,34 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
   $scope.filtern= {
     published: 0,
     declined: 0
-  }
+  };
+  $scope.ntag = {};
+  $scope.new_tag_name = false;
+  $scope.adding_tag = false;
+  $scope.update_tag_name = function () {
+    if ($scope.tag_name_select=="new") {
+      $scope.ntag.tag_name = "";
+      $scope.new_tag_name = true;
+    }
+    else {
+      $scope.new_tag_name=false;
+      $scope.ntag.tag_name= $scope.tag_name_select;
+    }
+  };
+  $scope.add_tag = function (id, tag) {
+    $http.post("add_tag.php", {id: id, tag_name: tag.tag_name, tag_value: tag.tag_value}).then(function (response) {
+      $scope.f.tags.push(angular.copy(tag));
+      $scope.adding_tag = false;
+      $scope.ntag = {};
+      $scope.new_tag_name = false;
+      $scope.tag_name_select = "";
+    });
+  };
+  $scope.remove_tag = function (tag) {
+    $http.post("remove_tag.php", {id: tag.id}).then(function () {
+      $scope.f.tags.splice($scope.f.tags.indexOf(tag), 1);
+    });
+  };
   $scope.events = {
                 markers: {
                     enable: leafletMarkerEvents.getAvailableEvents(),
@@ -91,6 +118,7 @@ $scope.$on('leafletDirectiveMarker.editmap.dragend', function (e, args) {
       markers[i].oldlng = Number(markers[i].lng);
     }
     $scope.eintraege = markers;
+    $scope.tag_names = response.data.tag_names;
     $scope.f = $filter('filter')($scope.eintraege, $scope.filtern)[0];
     $scope.selecteditem();
   });

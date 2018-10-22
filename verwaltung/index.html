@@ -9,7 +9,7 @@
      crossorigin=""/>
      <link rel="stylesheet" href="../css/bootstrap.min.css"/>
 
-     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/../css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
   <link rel="stylesheet" href="../css/leaflet.extra-markers.min.css">
   <link rel="stylesheet" href="../css/ngDialog.min.css"/>
   <link rel="stylesheet" href="../css/ngDialog-theme-plain.min.css"/>
@@ -104,6 +104,25 @@
           <option value="Allgemeines">Allgemeines</option>
           <option value="Sonstiges">Sonstiges</option>
         </select>
+      </div>
+      <div class="form-group">
+          <label>Tags</label>
+          <span ng-repeat="t in f.tags"><span class="badge badge-secondary">{{t.tag_name?t.tag_name+': '+t.tag_value:t.tag_value}}&nbsp;<i ng-click="remove_tag(t)" class="cl fas fa-minus"></i></span>&nbsp;</span>
+          <a class="btn btn-link cl" ng-click="adding_tag=true;"><i class="fas fa-plus"></i>&nbsp;Tag</a>
+          <div class="input-group" ng-show="adding_tag">
+            <div class="input-group-prepend">
+              <select id="new_tag_name" ng-change="update_tag_name()" ng-model="tag_name_select" class="custom-select">
+                <option value="">Kategorie</option>
+                <option ng-repeat="t in tag_names" value="{{t}}">{{t}}</option>
+                <option value="new">Neu</option>
+              </select>
+            </div>
+            <input ng-show="new_tag_name" class="form-control" placeholder="Tagkategorie" id="new_tag_name" ng-model="ntag.tag_name" type="text"/>
+            <input class="form-control" placeholder="Tagtext" id="new_tag_value" ng-model="ntag.tag_value" type="text"/>
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" ng-click="add_tag(f.id, ntag)"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
       </div>
     </div>
   </div>
