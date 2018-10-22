@@ -38,80 +38,54 @@
 </head>
 <body ng-app="radwege">
   <div class="container" ng-controller="edit">
-    <h1>Verwaltung</h1>
     <div class="row">
-      <div class="col-lg-4 col-sm-12">
-        <input type="text" style="width: 100%;" class="form-control" placeholder="Suchen" ng-model="suche"/>
-      </div>
-      <div class="col-lg-4 col-sm-12">
-        <h5 style="color: white;">
-        <a class="badge" ng-class="{'cl': filtern.published!=0, 'badge-primary': filtern.published==0, 'badge-secondary': filtern.published!=0}" ng-click="filtern.published=0; filtern.declined=0;">Eingereicht</a>
-        <a class="badge" ng-class="{'cl': filtern.published+filtern.declined!=1, 'badge-primary': filtern.published+filtern.declined==1, 'badge-secondary': filtern.published+filtern.declined!=1}" ng-click="filtern.published=1; filtern.declined=0;">Veröffentlicht</a>
-        <a class="badge" ng-class="{'cl': filtern.declined!=1, 'badge-primary': filtern.declined==1, 'badge-secondary': filtern.declined!=1}" ng-click="filtern.declined=1; filtern.published=1;">Verworfen</a>
-      </h5>
-      </div>
-      <div class="col-lg-4 col-sm-12">
-        Aktuelle Auswahl: {{filtered.length}} Einträge
+      <div class="col-lg-12 text-center">
+        <h1>Verwaltung</h1>
       </div>
     </div>
     <div class="row">
+      <div class="col-lg-6">
+        <div class="row">
+          <div class="col-lg-12 col-sm-12">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn" ng-class="{'cl': filtern.published!=0, 'btn-primary': filtern.published==0, 'btn-secondary': filtern.published!=0}" ng-click="filtern.published=0; filtern.declined=0;">Eingereicht</button>
+              <button type="button" class="btn" ng-class="{'cl': filtern.published+filtern.declined!=1, 'btn-primary': filtern.published+filtern.declined==1, 'btn-secondary': filtern.published+filtern.declined!=1}" ng-click="filtern.published=1; filtern.declined=0;">Veröffentlicht</button>
+              <button type="button" class="btn" ng-class="{'cl': filtern.declined!=1, 'btn-primary': filtern.declined==1, 'btn-secondary': filtern.declined!=1}" ng-click="filtern.declined=1; filtern.published=1;">Verworfen</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6 col-sm-12">
+            <input type="text" style="width: 100%;" class="form-control" placeholder="Suchen" ng-model="suche"/>
+          </div>
+          <div class="col-lg-6 col-sm-12">
+            Aktuelle Auswahl: {{filtered.length}} Einträge
+          </div>
+        </div>
+        <div class="row">
       <div class="col-lg-12" style="height: 500px; overflow:auto;">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Status</th>
-              <th>Timestamp</th>
-              <th>Titel</th>
-              <th>Problem</th>
-              <th>Ort</th>
-              <th>Notiz</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="cl" ng-repeat="e in eintraege | filter:suche | filter:filtern as filtered" ng-click="$parent.f=e; selecteditem()" ng-class="{'table-primary': $parent.f.id==e.id}">
-              <td>{{e.id}}</td>
-              <td>{{e.Status}}</td>
-              <td>{{e.timestamp}}</td>
-              <td>{{e.Titel}}</td>
-              <td>{{e.Problem | limitTo: 100}}...</td>
-              <td>{{e.position_text}}</td>
-              <td>{{e.service_note}}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="list-group">
+          <a class="cl list-group-item list-group-item-action flex-column align-items-start" ng-repeat="e in eintraege | filter:suche | filter:filtern as filtered" ng-click="$parent.f=e; selecteditem()" ng-class="{'active': $parent.f.id==e.id}">
+            <div><span class="text-secondary">#{{e.id}}</span>&nbsp;<span class="badge badge-secondary">{{e.Status}}</span></div>
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{e.Titel}}</h5>
+              <small>{{e.timestamp}}</small>
+            </div>
+            <p class="mb-1">{{e.Problem | limitTo: 100}}...</p>
+            <small><span ng-hide="!e.position_text">Ort: {{e.position_text}}<br/></span><span ng-hide="!e.service_note">Kommentar: {{e.service_note}}</span></small>
+          </a>
+        </div>
       </div>
     </div>
-    <div class="row eintrag">
-      <div class="col-lg-12"><h2>{{f.Titel}}&nbsp;&nbsp;<button class="btn" ng-class="{'btn-default': f.published==0, 'btn-primary': f.published==1}" ng-click="save(f)"> Speichern</button>
-      <button class="btn btn-primary" ng-click="publish(f)" ng-disabled="f.published==1" ng-hide="f.published==1"> Speichern&Freigeben</button><button class="btn" ng-class="{'btn-danger': f.published==0, 'btn-default': f.published==1}" ng-click="decline(f)">Verwerfen</button></h2></div>
+    </div>
+    <div class="col-lg-6">
       <form class="form">
         <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="col-lg-12">
         <div class="form-group">
       	<label for="Titel">Titel/Ort*:</label>
       	<input ng-model="f.Titel" type="text" name="Titel" value="" required class="form-control"><br>
       </div>
-
-      <div class="form-group">
-        <label for="Adresse">Adresse </label>
-        <div class="input-group">
-        <input type="text" ng-model="f.position_text" name="adresse" class="form-control"/>
-        <div class="input-group-append">
-          <button class="btn btn-primary" ng-click="orten(f.position_text)">Orten</button>
-      </div>
-      </div>
-      <small class="text-muted form-text">Die Änderungen am Position-Text werden nicht gespeichert, lediglich die aktualisierten Koordinaten</small>
-      	<label for="Lat">Lat</label>
-      	<input disabled type="text" id="Lat" name="Lat" ng-model="f.lat" class="form-control">
-        <label for="lng">Lng</label>
-      	<input disabled type="text" id="lng" name="lng" ng-model="f.lng" class="form-control">
-      </div>
-      <leaflet id="editmap" style="width: 100%; height: 300px;" events="events" lf-center="center" markers="markers"></leaflet><br/>
-      <span ng-show="f.newlatlng">Lat: {{f.lat}}, Lng: {{f.lng}} <button class="btn btn-sm btn-outline-secondary" ng-click="resetlatlng(f)">Reset</button></span>
-</div>
-<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-
       <div class="form-group">
       	<label for="Problem">Problem:</label>
       	<textarea name="Problem" ng-model="f.Problem" rows="3" cols="30" maxlength="1500" required class="form-control"></textarea><br>
@@ -131,11 +105,39 @@
           <option value="Sonstiges">Sonstiges</option>
         </select>
       </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-6 col-sm-12">
+      <div class="form-group">
+        <label for="Adresse">Adresse </label>
+        <div class="input-group">
+        <input type="text" ng-model="f.position_text" name="adresse" class="form-control"/>
+        <div class="input-group-append">
+          <button class="btn btn-primary" ng-click="orten(f.position_text)">Orten</button>
+      </div>
+      </div>
+      <small class="text-muted form-text">Die Änderungen am Position-Text werden nicht gespeichert, lediglich die aktualisierten Koordinaten</small>
+      </div>
+      Lat: {{f.lat}}, Lng: {{f.lng}}&nbsp;<span ng-show="f.newlatlng"><button class="btn btn-sm btn-outline-secondary" ng-click="resetlatlng(f)">Reset</button></span><br/>
+      <leaflet id="editmap" style="width: 100%; height: 300px;" events="events" lf-center="center" markers="markers"></leaflet><br/>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <img ng-hide="!f.Bild" style="width: 100%" src="/upload/{{f.Bild}}"/>
+      <span ng-hide="!f.Bild"><br/><button class="btn btn-outline-secondary" ng-click="f.Bild=''"><i class="fas fa-times"></i> Bild entfernen</button></span>
+      <span ng-show="!f.Bild">Kein Bild<br/>
+        <input id="takePictureField" ng-model="ownpoint.Foto" name="Foto" type="file" accept="image/*" class="form-control-file" image="imageupload" resize-max-height="1000" resize-max-width="1000" resize-quality="0.7" resize-type="image/jpg" ng-image-compress/><br/>
+        <button class="btn btn-outline-secondary" ng-click="upload(f)">Upload</button>
+      </span>
+    </div>
+  </div>
       <div class="form-group">
         <label for="service_note">Interne Notiz</label>
         <textarea id="service_note" ng-model="f.service_note" maxlength="1000" class="form-control"></textarea>
       </div>
-      Mailkontakt: <a ng-class="{'cl': !f.mailing}" style="color: blue; text-decoration: underline;" ng-click="f.mailing? null:activatemail(f)">{{f.mail}}</a>
+      <button class="btn" ng-class="{'btn-default': f.published==0, 'btn-primary': f.published==1}" ng-click="save(f)"> Speichern</button>
+      <button class="btn btn-primary" ng-click="publish(f)" ng-disabled="f.published==1" ng-hide="f.published==1"> Speichern&Freigeben</button><button class="btn" ng-class="{'btn-danger': f.published==0, 'btn-default': f.published==1}" ng-click="decline(f)">Verwerfen</button>
+      <br/>Mailkontakt: <span ng-show="!f.mail">Nicht angegeben</span><a ng-class="{'cl': !f.mailing}" style="color: blue; text-decoration: underline;" ng-click="f.mailing? null:activatemail(f)">{{f.mail}}</a>
       <div ng-show="mailing || f.mailing">
         <div class="form-group" ng-hide="f.mailing">
           <label for="betreff">Betreff</label>
@@ -147,17 +149,10 @@
         </div>
         <button ng-hide="f.mailing" class="btn btn-primary btn-sm" ng-click="sendmail(f, mail)">Senden</button>&nbsp;<button ng-hide="f.mailing" class="btn btn-outline-secondary btn-sm" ng-click="resetmail()">Abbrechen</button>
       </div>
-<img ng-hide="!f.Bild" style="width: 100%" src="/upload/{{f.Bild}}"/>
-<span ng-hide="!f.Bild"><br/><button class="btn btn-outline-secondary" ng-click="f.Bild=''"><i class="fas fa-times"></i> Bild entfernen</button></span>
-<span ng-show="!f.Bild">Kein Bild<br/>
-  <input id="takePictureField" ng-model="ownpoint.Foto" name="Foto" type="file" accept="image/*" class="form-control-file" image="imageupload" resize-max-height="1000" resize-max-width="1000" resize-quality="0.7" resize-type="image/jpg" ng-image-compress/><br/>
-  <button class="btn btn-outline-secondary" ng-click="upload(f)">Upload</button>
-</span>
-</div>
-</div
     </form>
     </div>
   </div>
+</div>
 
 </body>
 </html>
