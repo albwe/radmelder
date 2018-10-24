@@ -1,4 +1,4 @@
-var app = angular.module("radwege", ['ui-leaflet', 'ngCookies', 'LocalStorageModule', 'ui.bootstrap', 'ngImageCompress', 'ngSanitize']);
+var app = angular.module("radwege", ['ui-leaflet', 'ngCookies', 'LocalStorageModule', 'ui.bootstrap', 'ngImageCompress', 'ngSanitize', 'ngCsv']);
 app.config(function (localStorageServiceProvider) {
   localStorageServiceProvider
   .setPrefix('melder')

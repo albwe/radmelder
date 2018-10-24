@@ -35,6 +35,36 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
       $scope.f.tags.splice($scope.f.tags.indexOf(tag), 1);
     });
   };
+  $scope.export = function(markers) {
+    o = angular.copy(markers);
+    for (var i=0; i < o.length; i++) {
+      delete o[i].mail;
+      delete o[i].mailing_time;
+      delete o[i].mailing;
+      delete o[i].icon;
+      delete o[i].draggable;
+      delete o[i].oldlat;
+      delete o[i].oldlng;
+      var tags_str = "";
+      for(var j=0; j<o[i].tags.length;j++) {
+        var tag = o[i].tags[j];
+        if(tag.tag_name && tag.tag_name!="") {
+          o[i][tag.tag_name]=tag.tag_value;
+        }
+        else {
+          tags_str += tags_str==""?tag.tag_value:(","+tag.tag_value);
+        }
+      }
+      for(var k=0; k < $scope.tag_names.length;k++) {
+        if(!o[i][$scope.tag_names[k]]) {
+          o[i][$scope.tag_names[k]]="";
+        }
+      }
+      o[i].tags = tags_str;
+    }
+    console.log(o);
+    return o;
+  };
   $scope.events = {
                 markers: {
                     enable: leafletMarkerEvents.getAvailableEvents(),
