@@ -1,5 +1,6 @@
 <?php
 require('../php/config.php');
+//ini_set('display_errors', 0);
 //$mysql = new mysqli($host, $user, $password, $database);
 //$mysql->set_charset("utf8");
 
@@ -30,7 +31,8 @@ function create_zip($files = array(),$destination = '',$overwrite = false) {
 		}
 		//add the files
 		foreach($valid_files as $file) {
-			$zip->addFile($file,end(explode('/', $file)));
+      $new_file_name = end(explode('/', $file));
+			$zip->addFile($file,$new_file_name);
 		}
 		//debug echo 'The zip archive contains ',$zip->numFiles,' files with a status of ',$zip->status;
 
