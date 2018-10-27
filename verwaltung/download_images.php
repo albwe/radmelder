@@ -31,7 +31,8 @@ function create_zip($files = array(),$destination = '',$overwrite = false) {
 		}
 		//add the files
 		foreach($valid_files as $file) {
-      $new_file_name = end(explode('/', $file));
+      $file_name_array = explode('/', $file);
+      $new_file_name = end($file_name_array);
 			$zip->addFile($file,$new_file_name);
 		}
 		//debug echo 'The zip archive contains ',$zip->numFiles,' files with a status of ',$zip->status;
