@@ -65,6 +65,27 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
     console.log(o);
     return o;
   };
+  $scope.getZip = function (o) {
+    console.log("Funktion erreicht");
+    $scope.zip_ready = false;
+    $scope.zip_loading = true;
+    files = [];
+    for (var i=0; i<o.length; i++) {
+      files.push(o[i].Bild);
+    }
+    $http.post("download_images.php", JSON.stringify({files: files})).then(function (response) {
+      if(response.data.success=="1") {
+        $scope.zip_ready = true;
+        $scope.zip_loading = false;
+        $scope.zip_link = response.data.file_name;
+      }
+      else {
+        $scope.zip_loading = false;
+        alert("Fehler: "+response.data.error);
+      }
+
+    });
+  };
   $scope.events = {
                 markers: {
                     enable: leafletMarkerEvents.getAvailableEvents(),
