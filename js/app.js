@@ -1,4 +1,4 @@
-var app = angular.module("radwege", ['ui-leaflet', 'ngCookies', 'LocalStorageModule', 'ui.bootstrap', 'ngImageCompress', 'ngSanitize', 'ngCsv']);
+var app = angular.module("radwege", ['ui-leaflet', 'ngCookies', 'LocalStorageModule', 'ngImageCompress', 'ngSanitize', 'ngCsv']);
 app.config(function (localStorageServiceProvider) {
   localStorageServiceProvider
   .setPrefix('melder')
@@ -38,8 +38,8 @@ app.factory('services', function () {
         return "#231f20";
     }
   },
-  getLayer: function (status) {
-    switch (status) {
+  getLayer: function (kategorie) {
+    switch (kategorie) {
       case "Gemeldet":
         return "gem";
       case "Oberfläche":
@@ -64,8 +64,8 @@ app.factory('services', function () {
         return "all";
       }
     },
-    getColorFromStatus: function (status) {
-      return object.getColor(object.getLayer(status));
+    getColorFromKategorie: function (kategorie) {
+      return object.getColor(object.getLayer(kategorie));
     }};
     return object;
 });
@@ -116,8 +116,8 @@ app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'l
     markerColor: 'black'
   }
   };
-  var getIcon = function (status) {
-    switch (status) {
+  var getIcon = function (kategorie) {
+    switch (kategorie) {
       case "Gemeldet":
         return icons.yellowIcon;
       case "Oberfläche":
@@ -143,7 +143,7 @@ app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'l
       }
     };
 
-  $scope.getColor = services.getColorFromStatus;
+  $scope.getColor = services.getColorFromKategorie;
   $scope.visuals = appCfg.visuals;
 $scope.goToElement = function(id) {
   var j;
@@ -207,7 +207,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         for (i=0; i<$scope.markers.length;i++) {
           m = $scope.markers[i];
           m.active=false;
-          m.icon=getIcon(m.Status);
+          m.icon=getIcon(m.Kategorie);
         }
         f.active=true;
         f.icon=icons.selectedIcon;
@@ -216,7 +216,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     listMouseLeave: function (f) {
       if (f.active) {
         f.active=false;
-        f.icon = getIcon(f.Status);
+        f.icon = getIcon(f.Kategorie);
       }
     },
     defaults: {
@@ -308,16 +308,16 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
       markers=result.data.markers;
       var bild;
       for(var i=0;i<markers.length;i++) {
-        markers[i].icon = getIcon(markers[i].Status);
-        //markers[i].layer = markers[i].Status;
+        markers[i].icon = getIcon(markers[i].Kategorie);
+        //markers[i].layer = markers[i].Kategorie;
         markers[i].lat = Number(markers[i].lat);
         markers[i].lng = Number(markers[i].lng);
-        markers[i].layer = services.getLayer(markers[i].Status);
+        markers[i].layer = services.getLayer(markers[i].Kategorie);
         bild = "";
         if (markers[i].Bild) {
           bild = "<div><img style=\"max-width: 100%; max-height: 200px;\" src=\"/upload/"+markers[i].Bild+"\"></div>";
         }
-      markers[i].message =  bild + "<h5 class=\"markertitle\">"+markers[i].Titel+"<span class=\"badge badge-secondary\" style=\"background-color: "+services.getColorFromStatus(markers[i].Status)+";\">"+markers[i].Status+"</span></h5><p ng-show=\"show"+markers[i].id+"\">"+markers[i].Problem+"</p><button class='btn btn-outline-secondary btn-sm cl' ng-click=\"show"+markers[i].id+"=!show"+markers[i].id+";\" ng-hide=\"show"+markers[i].id+"\">Mehr</button><button class=\"btn btn-outline-secondary btn-sm\" ng-class=\"{'text-white': markers["+i+"].clicked\" ng-style=\"markers["+i+"].user_supported? {cursor: 'default'}:null\" ng-click=\"vote(markers["+i+"])\"><span ng-hide=\"markers["+i+"].user_supported\"><span class=\"fas fa-thumbs-up\"></span> Voten</span><span ng-show=\"markers["+i+"].user_supported\"><span class=\"fas fa-check\"></span>Gevoted</span></button><span ng-class=\"{'text-white': markers["+i+"].clicked, 'text-muted': !f.clicked}\">&nbsp;{{markers["+i+"].supported? markers["+i+"].supported:0}}x gevoted</span>";
+      markers[i].message =  bild + "<h5 class=\"markertitle\">"+markers[i].Titel+"<span class=\"badge badge-secondary\" style=\"background-color: "+services.getColorFromKategorie(markers[i].Kategorie)+";\">"+markers[i].Kategorie+"</span></h5><p ng-show=\"show"+markers[i].id+"\">"+markers[i].Problem+"</p><button class='btn btn-outline-secondary btn-sm cl' ng-click=\"show"+markers[i].id+"=!show"+markers[i].id+";\" ng-hide=\"show"+markers[i].id+"\">Mehr</button><button class=\"btn btn-outline-secondary btn-sm\" ng-class=\"{'text-white': markers["+i+"].clicked}\" ng-style=\"markers["+i+"].user_supported? {cursor: 'default'}:null\" ng-click=\"vote(markers["+i+"])\"><span ng-hide=\"markers["+i+"].user_supported\"><span class=\"fas fa-thumbs-up\"></span> Voten</span><span ng-show=\"markers["+i+"].user_supported\"><span class=\"fas fa-check\"></span>Gevoted</span></button><span ng-class=\"{'text-white': markers["+i+"].clicked, 'text-muted': !f.clicked}\">&nbsp;{{markers["+i+"].supported? markers["+i+"].supported:0}}x gevoted</span>";
         markers[i].getMessageScope = function () {return $scope;};
         markers[i].supported = markers[i].supported? parseInt(markers[i].supported) : 0;
         if (localStorageService.keys().indexOf(markers[i].id)!=-1) {
@@ -437,9 +437,9 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         return 0;
       }
     }
-    $scope.statusFilter = [];
+    $scope.kategorieFilter = [];
     $scope.filterFunction = function(e) {
-      if ($scope.statusFilter.indexOf(e.Status)>-1 || $scope.statusFilter.length==0) {
+      if ($scope.kategorieFilter.indexOf(e.Kategorie)>-1 || $scope.kategorieFilter.length==0) {
         return true;
       }
       else {

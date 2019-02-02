@@ -148,8 +148,8 @@
   <div class="card-group">
   <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 card-wrapper" ng-hide="f.visible==false" ng-repeat="f in markers | filter:suche |filter: filterFunction | orderBy: '-supported' | limitTo: pageSize:currentPage*pageSize">
   <div id="{{'eintrag'+f.id}}" class="card" ng-mouseover="selectListElement(f)" ng-mouseleave="listMouseLeave(f)" ng-class="{'active': f.active, 'clicked': f.clicked, 'text-white': f.clicked}">
-    <div class="card-header text-white" ng-style="f.clicked? null:{'background-color': getColor(f.Status)}">
-      {{f.Status}}
+    <div class="card-header text-white" ng-style="f.clicked? null:{'background-color': getColor(f.Kategorie)}">
+      {{f.Kategorie}}
     </div>
     <img class="img-fluid card-img-top" style="" ng-hide="false" src="/upload/{{(!f.Bild || f.Bild == '' || f.Bild == 'NULL')? 'platzhalter.jpg':f.Bild}}" style="max-width: 100%; height: auto">
     <div class="card-body">
