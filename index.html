@@ -154,7 +154,7 @@
     <img class="img-fluid card-img-top" style="" ng-hide="false" src="/upload/{{(!f.Bild || f.Bild == '' || f.Bild == 'NULL')? 'platzhalter.jpg':f.Bild}}" style="max-width: 100%; height: auto">
     <div class="card-body">
       <h5 class="card-title" ng-class="{'text-white': f.clicked}">{{f.Titel}}</h5>
-      <span ng-repeat="t in f.tags"><span class="badge badge-secondary">{{t.tag_name?t.tag_name+': '+t.tag_value:t.tag_value}}</span>&nbsp;</span>
+      <span ng-repeat="t in f.tags"><span class="badge badge-secondary" style="font-weight: 400;">{{t.tag_name?t.tag_name+': '+t.tag_value:t.tag_value}}</span>&nbsp;</span>
           <p class="card-text" ng-show="f.more"><b ng-hide="!f.Loesung || f.Loesung=='' || f.Loesung=='NULL'">Problem<br/></b>{{f.Problem}}<br/><b ng-hide="!f.Loesung || f.Loesung=='' || f.Loesung=='NULL'">L&ouml;sung<br/></b>{{f.Loesung}}</p>
           <a class="card-link cl" ng-class="{'text-white': f.clicked}" style="color: #e52b50; text-decoration: underline;" ng-click="f.more=!f.more;">{{f.more? 'Weniger':'Mehr'}}</a><br/>
           <button class="btn btn-outline-secondary btn-sm" ng-class="{'text-white': f.clicked}" ng-style="f.user_supported? {cursor: 'default'}:null" ng-click="vote(f)"><span ng-hide="f.user_supported"><span class="fas fa-thumbs-up"></span> Voten</span><span ng-show="f.user_supported"><span class="fas fa-check"></span>Gevoted</span></button><span ng-class="{'text-white': f.clicked, 'text-muted': !f.clicked}">&nbsp;{{f.supported? f.supported:0}}x gevoted</span>
