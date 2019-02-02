@@ -14,7 +14,7 @@ $Loesung = $data['Loesung']!='' ? "'".$data['Loesung']."'" : "NULL";
 //$Bild = $data['Bild']!='' ? "'".$data['Bild']."'" : "NULL";
 $Mail = $data['mail']!='' ? "'".$data['mail']."'" : "NULL";
 $position_text = $data['position_text']!='' ? "'".$data['position_text']."'" : "NULL";
-$query=$mysql->query("INSERT INTO stellen (lat, lng, position_text, Titel, Problem, Loesung, Status) VALUES ($lat, $lng, $position_text, $Titel, $Problem, $Loesung, 'Eingereicht')");
+$query=$mysql->query("INSERT INTO stellen (lat, lng, position_text, Titel, Problem, Loesung, Kategorie) VALUES ($lat, $lng, $position_text, $Titel, $Problem, $Loesung, 'Eingereicht')");
 $id = $mysql->insert_id;
 $mysql->query("INSERT INTO mails (fk_stelle_id, mail) VALUES ($id, $Mail);");
 if($data['BildURI']!="") {

@@ -1,4 +1,4 @@
-<?php
+Kategorie<?php
 include("config.php");
 
 $mysql = new mysqli($host, $user, $password, $database);
