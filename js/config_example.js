@@ -27,6 +27,7 @@ angular.module("radwege").constant('appCfg', {
         call_to_action: "Problem melden"
       },
       form: {
+        active: true,
         mail: {
           label: "E-Mail-Adresse für Rückfragen (wird nicht veröffentlicht)",
           caption: "Gib deine Mail-Adresse für evtl. Rückfragen an."

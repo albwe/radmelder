@@ -54,8 +54,8 @@
   <div class="col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12 col-xs-12">
     <h3 class="text-white" ng-bind-html="visuals.main.title"></h3>
     <p class="einleitung-text" ng-repeat="c in visuals.main.content">{{c}}</p>
-    </div></div><div class="row"> <div class="col-lg-12" style="text-align: center;">
-      <a style="color: #045922;" ng-click="addpoint=!addpoint;" class="btn btn-light btn-xl cl hinzuefuegen"></span>{{visuals.main.call_to_action}}</a>
+  </div></div><div class="row" ng-show="visuals.form.active"> <div class="col-lg-12" style="text-align: center;">
+      <a style="color: #045922;" ng-click="addpoint=(visuals.form.active && !addpoint)" class="btn btn-light btn-xl cl hinzuefuegen"></span>{{visuals.main.call_to_action}}</a>
     </div>
 </div>
 </div>
