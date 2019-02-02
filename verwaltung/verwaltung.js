@@ -3,7 +3,8 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
     type: 'extraMarker',
     markerColor: 'white'
   };
-  $scope.getColorFromKategorie = services.getColorFromKategorie;
+  $scope.getColorFromKategorie = services.getColorFromCategory;
+  $scope.categories = appCfg.categories;
   $scope.filtern= {
     published: 0,
     declined: 0

@@ -96,7 +96,10 @@
       <div class="form-group">
         <label for="Kategorie">Kategorie</label>
         <select id="Kategorie" ng-model="f.Kategorie" class="custom-select">
-          <option value="Oberfläche">Oberfläche</option>
+          <option ng-repeat="c in categories" value="{{c.name}}">
+            {{c.name}}
+          </option>
+          <!--<option value="Oberfläche">Oberfläche</option>
           <option value="Verkehrsbeschilderung/ Markierung/ Beleuchtung">Verkehrsbeschilderung/ Markierung/ Beleuchtung</option>
           <option value="Radwegweisung">Radwegweisung</option>
           <option value="Behinderung">Behinderung</option>
@@ -105,7 +108,7 @@
           <option value="Ampel">Ampel</option>
           <option value="Abstellanlagen">Abstellanlagen</option>
           <option value="Allgemeines">Allgemeines</option>
-          <option value="Sonstiges">Sonstiges</option>
+          <option value="Sonstiges">Sonstiges</option>-->
         </select>
       </div>
       <div class="form-group">

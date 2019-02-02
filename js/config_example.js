@@ -15,6 +15,74 @@ angular.module("radwege").constant('appCfg', {
       add_point_map_zoom: 17,
       edit_point_map_zoom: 18
     },
+    categories: [
+      {
+        name: "Gemeldet",
+        short: "gem",
+        color: "yellow",
+        visibleOnMap: false
+      },
+      {
+        name: "Oberfläche",
+        short: "obe",
+        color: "yellow",
+        visibleOnMap: true
+      },
+      {
+        name: "Verkehrsbeschilderung/ Markierung/ Beleuchtung",
+        short: "sch",
+        color: "green",
+        visibleOnMap: true
+      },
+      {
+        name: "Radwegweisung",
+        short: "weg",
+        color: "red",
+        visibleOnMap: true
+      },
+      {
+        name: "Behinderung",
+        short: "beh",
+        color: "blue",
+        visibleOnMap: true
+      },
+      {
+        name: "Verkehrsführung",
+        short: "fue",
+        color: "violet",
+        visibleOnMap: true
+      },
+      {
+        name: "Straßenbauarbeiten",
+        short: "str",
+        color: "orange",
+        visibleOnMap: true
+      },
+      {
+        name: "Ampel",
+        short: "amp",
+        color: "cyan",
+        visibleOnMap: true
+      },
+      {
+        name: "Abstellanlagen",
+        short: "abs",
+        color: "pink",
+        visibleOnMap: true
+      },
+      {
+        name: "Sonstiges",
+        short: "son",
+        color: "black",
+        visibleOnMap: true
+      },
+      {
+        name: "Allgemeines",
+        short: "all",
+        color: "black",
+        visibleOnMap: false
+      }
+    ],
     visuals: {
       logo: "img/logo.svg",
       header_title: "Radmelder",
