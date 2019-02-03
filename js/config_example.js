@@ -15,13 +15,15 @@ angular.module("radwege").constant('appCfg', {
       add_point_map_zoom: 17,
       edit_point_map_zoom: 18
     },
-    categories: [
+    status: [
       {
         name: "Gemeldet",
         short: "gem",
         color: "yellow",
         visibleOnMap: false
-      },
+      }
+    ],
+    categories: [
       {
         name: "Oberfläche",
         short: "obe",

@@ -112,6 +112,24 @@
         </select>
       </div>
       <div class="form-group">
+        <label for="Bearbeitungsstatus">Bearbeitungsstatus</label>
+        <select id="Bearbeitungsstatus" ng-model="f.Bearbeitungsstatus" class="custom-select">
+          <option ng-repeat="c in status" value="{{c.name}}">
+            {{c.name}}
+          </option>
+          <!--<option value="Oberfläche">Oberfläche</option>
+          <option value="Verkehrsbeschilderung/ Markierung/ Beleuchtung">Verkehrsbeschilderung/ Markierung/ Beleuchtung</option>
+          <option value="Radwegweisung">Radwegweisung</option>
+          <option value="Behinderung">Behinderung</option>
+          <option value="Verkehrsführung">Verkehrsführung</option>
+          <option value="Straßenbauarbeiten">Straßenbauarbeiten</option>
+          <option value="Ampel">Ampel</option>
+          <option value="Abstellanlagen">Abstellanlagen</option>
+          <option value="Allgemeines">Allgemeines</option>
+          <option value="Sonstiges">Sonstiges</option>-->
+        </select>
+      </div>
+      <div class="form-group">
           <label>Tags</label>
           <span ng-repeat="t in f.tags"><span class="badge badge-secondary" style="font-weight: 400;">{{t.tag_name?t.tag_name+': '+t.tag_value:t.tag_value}}&nbsp;<i ng-click="remove_tag(t)" class="cl fas fa-minus"></i></span>&nbsp;</span>
           <a class="btn btn-link cl" ng-click="adding_tag=true;"><i class="fas fa-plus"></i>&nbsp;Tag</a>

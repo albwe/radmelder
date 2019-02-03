@@ -7,7 +7,10 @@ app.config(function (localStorageServiceProvider) {
 });
 app.factory('services', function (appCfg) {
   var object = {
+    displayCategories: appCfg.settings.displayCategories,
   categories: appCfg.categories,
+  status: appCfg.status,
+  layers: appCfg.settings.displayCategories? appCfg.categories:appCfg.status,
   getMapboxGeocoding: function (data, mapboxConfig) {
     var code = encodeURIComponent(data);
     var area = mapboxConfig.area_corner;
@@ -35,25 +38,50 @@ app.factory('services', function (appCfg) {
         return "#231f20";
     }
   },
-  getCategoryObject: function (category) {
-    for(var i=0; i<object.categories.length; i++) {
-      c = object.categories[i];
-      if(c.name==category) {
+  changeLayers: function() {
+    object.layers = (object.displayCategories)?object.status:object.categories;
+    object.displayCategories = !object.displayCategories;
+  },
+  buildLayers: function () {
+    var customLayers = {};
+    for(var i=0; i<object.layers.length;i++) {
+      customLayers[object.layers[i].short] = {type: "group"};
+      if(object.layers[i].visibleOnMap) {
+        customLayers[object.layers[i].short].name = "<span class='fa fa-circle' style='color: "+object.getColorCode(object.layers[i].color)+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+object.getColorCode(object.layers[i].color)+"'>"+object.layers[i].name+"</span>";
+      }
+      customLayers[object.layers[i].short].visible = object.layers[i].visibleOnMap;
+    }
+    return customLayers;
+  },
+  getObject: function (name, ifCategory) {
+    var objects = ifCategory? object.categories : object.status;
+    for(var i=0; i<objects.length; i++) {
+      c = objects[i];
+      if(c.name==name) {
         return c;
       }
     }
   },
-  getLayer: function (category) {
-      return object.getCategoryObject(category).short;
+  getLayer: function (name) {
+      return object.getObject(name, object.displayCategories).short;
     },
-    getColorFromCategory: function (category) {
-      c = object.getCategoryObject(category);
+    getColorFrom: function (category, ifCategory) {
+      c = object.getObject(category, ifCategory);
       if(c) {
         return object.getColorCode(c.color);
       }
       else {
         return "#6c757d";
       }
+    },
+    getColorFromCategory: function (name) {
+      return object.getColorFrom(name, true);
+    },
+    getColorFromStatus: function (name) {
+      return object.getColorFrom(name, false);
+    },
+    getColorFromLayer: function (name) {
+      return object.getColorFrom(name, object.displayCategories);
     },
     icons: {
       redIcon: {
@@ -102,7 +130,10 @@ app.factory('services', function (appCfg) {
     }
   },
   getIconFromCategory: function (category) {
-    return object.getIconFromColor(object.getCategoryObject(category).color);
+    return object.getIconFromColor(object.getObject(category, true).color);
+  },
+  getIconFromLayer: function(name) {
+    return object.getIconFromColor(object.getObject(name, object.displayCategories).color);
   },
     getIconFromColor: function (color) {
       switch (color) {
@@ -128,36 +159,38 @@ app.factory('services', function (appCfg) {
     }};
     return object;
 });
-app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'leafletMarkerEvents', '$log', '$anchorScroll', 'localStorageService', '$timeout', 'services', 'appCfg', function ($scope, $http, leafletData, leafletMapEvents, leafletMarkerEvents, $log, $anchorScroll, localStorageService, $timeout, services, appCfg) {
+app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'leafletMarkerEvents', '$log', '$anchorScroll', 'localStorageService', '$timeout', 'services', 'appCfg', '$window', function ($scope, $http, leafletData, leafletMapEvents, leafletMarkerEvents, $log, $anchorScroll, localStorageService, $timeout, services, appCfg, $window) {
 
-/*  var getIcon = function (kategorie) {
-    switch (kategorie) {
-      case "Gemeldet":
-        return icons.yellowIcon;
-      case "Oberfläche":
-        return icons.yellowIcon;
-      case "Verkehrsbeschilderung/ Markierung/ Beleuchtung":
-        return icons.greenIcon;
-      case "Radwegweisung":
-        return icons.redIcon;
-      case "Behinderung":
-        return icons.blueIcon;
-      case "Verkehrsführung":
-        return icons.violetIcon;
-      case "Straßenbauarbeiten":
-        return icons.orangeIcon;
-      case "Ampel":
-        return icons.cyanIcon;
-      case "Abstellanlagen":
-        return icons.pinkIcon;
-      case "Sonstiges":
-        return icons.blackIcon;
-      case "Allgemeines":
-        return icons.blackIcon;
+  var buildMarkers = function(markers) {
+    var bild;
+    for(var i=0;i<markers.length;i++) {
+      markers[i].icon = services.getIconFromLayer(services.displayCategories? markers[i].Kategorie : markers[i].Bearbeitungsstatus);
+      //markers[i].layer = markers[i].Kategorie;
+      markers[i].lat = Number(markers[i].lat);
+      markers[i].lng = Number(markers[i].lng);
+      markers[i].layer = services.getLayer(services.displayCategories? markers[i].Kategorie : markers[i].Bearbeitungsstatus);
+      bild = "";
+      if (markers[i].Bild) {
+        bild = "<div><img style=\"max-width: 100%; max-height: 200px;\" src=\"/upload/"+markers[i].Bild+"\"></div>";
       }
-    };*/
+    markers[i].message =  bild + "<h5 class=\"markertitle\">"+markers[i].Titel+"<span class=\"badge badge-secondary\" style=\"background-color: "+services.getColorFromLayer(services.displayCategories? markers[i].Kategorie : markers[i].Bearbeitungsstatus)+";\">"+markers[i].Kategorie+"</span></h5><p ng-show=\"show"+markers[i].id+"\">"+markers[i].Problem+"</p><button class='btn btn-outline-secondary btn-sm cl' ng-click=\"show"+markers[i].id+"=!show"+markers[i].id+";\" ng-hide=\"show"+markers[i].id+"\">Mehr</button><button class=\"btn btn-outline-secondary btn-sm\" ng-class=\"{'text-white': markers["+i+"].clicked}\" ng-style=\"markers["+i+"].user_supported? {cursor: 'default'}:null\" ng-click=\"vote(markers["+i+"])\"><span ng-hide=\"markers["+i+"].user_supported\"><span class=\"fas fa-thumbs-up\"></span> Voten</span><span ng-show=\"markers["+i+"].user_supported\"><span class=\"fas fa-check\"></span>Gevoted</span></button><span ng-class=\"{'text-white': markers["+i+"].clicked, 'text-muted': !f.clicked}\">&nbsp;{{markers["+i+"].supported? markers["+i+"].supported:0}}x gevoted</span>";
+      markers[i].getMessageScope = function () {return $scope;};
+      markers[i].supported = markers[i].supported? parseInt(markers[i].supported) : 0;
+      if (localStorageService.keys().indexOf(markers[i].id)!=-1) {
+        markers[i].user_supported = true;
+      }
+    }
+    return markers;
+  }
 
-  $scope.getColor = services.getColorFromCategory;
+  $scope.changeLayers = function () {
+    services.changeLayers();
+    $scope.layers.overlays = services.buildLayers();
+    $scope.markers = buildMarkers($scope.markers);
+  }
+
+  $scope.getColorFromKategorie = services.getColorFromCategory;
+  $scope.getColorFromStatus = services.getColorFromStatus;
   $scope.visuals = appCfg.visuals;
 /*$scope.goToElement = function(id) {
   var j;
@@ -179,14 +212,7 @@ app.controller("core", ['$scope', '$http', 'leafletData', 'leafletMapEvents', 'l
 $scope.$on("leafletDirectiveMap.main.click", function(event){
   $scope.defaults.scrollWheelZoom = true;
 });
-  var customLayers = {};
-  for(var i=0; i<services.categories.length;i++) {
-    customLayers[services.categories[i].short] = {type: "group"};
-    if(services.categories[i].visibleOnMap) {
-      customLayers[services.categories[i].short].name = "<span class='fa fa-circle' style='color: "+services.getColorCode(services.categories[i].color)+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColorCode(services.categories[i].color)+"'>"+services.categories[i].name+"</span>";
-    }
-    customLayers[services.categories[i].short].visible = services.categories[i].visibleOnMap;
-  }
+
   angular.extend($scope, {
     form_completed: false,
     punktgewaehlt: false,
@@ -229,7 +255,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         for (i=0; i<$scope.markers.length;i++) {
           m = $scope.markers[i];
           m.active=false;
-          m.icon=services.getIconFromCategory(m.Kategorie);
+          m.icon=services.getIconFromLayer(services.displayCategories? m.Kategorie : m.Bearbeitungsstatus);
         }
         f.active=true;
         f.icon=services.icons.selectedIcon;
@@ -238,7 +264,7 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
     listMouseLeave: function (f) {
       if (f.active) {
         f.active=false;
-        f.icon = getIcon(f.Kategorie);
+        f.icon = services.getIconFromLayer(services.displayCategories? f.Kategorie : f.Bearbeitungsstatus);
       }
     },
     defaults: {
@@ -248,62 +274,12 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
         layers: {
           visible: true,
           position: 'bottomleft',
-          collapsed: true
+          collapsed: ($window.innerWidth<$window.innerHeight)
         }
       }
     },
     layers: {
-      overlays: customLayers/*{
-      obe: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("obe")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("obe")+"'>Oberfläche</span>",
-        type: "group",
-        visible: true
-      },
-      all: {
-        visible: false,
-        type: "group"
-      },
-      sch: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("sch")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("sch")+"'>Verkehrsbeschilderung/ Markierung/ Beleuchtung</span>",
-        type: "group",
-        visible: true
-      },
-      weg: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("weg")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("weg")+"'>Radwegweisung</span>",
-        type: "group",
-        visible: true
-      },
-      beh: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("beh")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("beh")+"'>Behinderung</span>",
-        type: "group",
-        visible: true
-      },
-      fue: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("fue")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("fue")+"'>Verkehrsführung</span>",
-        type: "group",
-        visible: true
-      },
-      str: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("str")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("str")+"'>Straßenbauarbeiten</span>",
-        type: "group",
-        visible: true
-      },
-      amp: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("amp")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("amp")+"'>Ampel</span>",
-        type: "group",
-        visible: true
-      },
-      abs: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("abs")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("abs")+"'>Abstellanlagen</span>",
-        type: "group",
-        visible: true
-      },
-      son: {
-        name: "<span class='fa fa-circle' style='color: "+services.getColor("son")+";'></span>&nbsp;<span class='badge badge-secondary' style='background-color: "+services.getColor("son")+"'>Sonstiges</span>",
-        type: "group",
-        visible: true
-      },
-    }*/
+      overlays: services.buildLayers()
   },
   addpoint: false,
     main_center: {
@@ -328,26 +304,34 @@ $scope.$on("leafletDirectiveMap.main.click", function(event){
   });
     $http.get("php/getstellen.php").then(function (result) {
       markers=result.data.markers;
-      var bild;
-      for(var i=0;i<markers.length;i++) {
-        markers[i].icon = services.getIconFromCategory(markers[i].Kategorie);
-        //markers[i].layer = markers[i].Kategorie;
-        markers[i].lat = Number(markers[i].lat);
-        markers[i].lng = Number(markers[i].lng);
-        markers[i].layer = services.getLayer(markers[i].Kategorie);
-        bild = "";
-        if (markers[i].Bild) {
-          bild = "<div><img style=\"max-width: 100%; max-height: 200px;\" src=\"/upload/"+markers[i].Bild+"\"></div>";
-        }
-      markers[i].message =  bild + "<h5 class=\"markertitle\">"+markers[i].Titel+"<span class=\"badge badge-secondary\" style=\"background-color: "+services.getColorFromCategory(markers[i].Kategorie)+";\">"+markers[i].Kategorie+"</span></h5><p ng-show=\"show"+markers[i].id+"\">"+markers[i].Problem+"</p><button class='btn btn-outline-secondary btn-sm cl' ng-click=\"show"+markers[i].id+"=!show"+markers[i].id+";\" ng-hide=\"show"+markers[i].id+"\">Mehr</button><button class=\"btn btn-outline-secondary btn-sm\" ng-class=\"{'text-white': markers["+i+"].clicked}\" ng-style=\"markers["+i+"].user_supported? {cursor: 'default'}:null\" ng-click=\"vote(markers["+i+"])\"><span ng-hide=\"markers["+i+"].user_supported\"><span class=\"fas fa-thumbs-up\"></span> Voten</span><span ng-show=\"markers["+i+"].user_supported\"><span class=\"fas fa-check\"></span>Gevoted</span></button><span ng-class=\"{'text-white': markers["+i+"].clicked, 'text-muted': !f.clicked}\">&nbsp;{{markers["+i+"].supported? markers["+i+"].supported:0}}x gevoted</span>";
-        markers[i].getMessageScope = function () {return $scope;};
-        markers[i].supported = markers[i].supported? parseInt(markers[i].supported) : 0;
-        if (localStorageService.keys().indexOf(markers[i].id)!=-1) {
-          markers[i].user_supported = true;
-        }
-      }
       angular.extend($scope, {
-        markers: markers
+        markers: buildMarkers(markers)
+      });
+      leafletData.getMap("main").then(function(map) {
+        var btn = L.easyButton({
+          states: [
+            {
+              stateName: 'Kategorien',
+              icon: '<i class="fas fa-exchange-alt"></i>&nbsp;Kategorien anzeigen',
+              onClick: function(btn, map) {
+                $scope.changeLayers();
+                btn.state("Bearbeitungsstatus");
+              },
+              title: 'Anzeige wechseln'
+            },
+            {
+              stateName: 'Bearbeitungsstatus',
+              icon: '<i class="fas fa-exchange-alt"></i>&nbsp;Bearbeitungsstatus anzeigen',
+              onClick: function(btn, map) {
+                $scope.changeLayers();
+                btn.state("Kategorien");
+              },
+              title: 'Anzeige wechseln'
+            }],
+            position: 'bottomleft'
+          });
+          btn.addTo(map);
+          btn.state(services.displayCategories? "Bearbeitungsstatus":"Kategorien");
       });
     });
     $scope.ownpoint = {

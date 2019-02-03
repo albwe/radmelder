@@ -5,6 +5,7 @@ angular.module('radwege').controller("edit", ['$scope', '$http', '$filter', 'lea
   };
   $scope.getColorFromKategorie = services.getColorFromCategory;
   $scope.categories = appCfg.categories;
+  $scope.status = appCfg.status;
   $scope.filtern= {
     published: 0,
     declined: 0

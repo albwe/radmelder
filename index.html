@@ -32,6 +32,7 @@
    integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
    crossorigin=""></script>
    <script src="js/leaflet.extra-markers.min.js"></script>
+   <script src="js/easy-button.js"></script>
 </head>
 
 <body ng-app="radwege"  ng-controller="core">
@@ -148,7 +149,7 @@
   <div class="card-group">
   <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 card-wrapper" ng-hide="f.visible==false" ng-repeat="f in markers | filter:suche |filter: filterFunction | orderBy: '-supported' | limitTo: pageSize:currentPage*pageSize">
   <div id="{{'eintrag'+f.id}}" class="card" ng-mouseover="selectListElement(f)" ng-mouseleave="listMouseLeave(f)" ng-class="{'active': f.active, 'clicked': f.clicked, 'text-white': f.clicked}">
-    <div class="card-header text-white" ng-style="f.clicked? null:{'background-color': getColor(f.Kategorie)}">
+    <div class="card-header text-white" ng-style="f.clicked? null:{'background-color': getColorFromKategorie(f.Kategorie)}">
       {{f.Kategorie}}
     </div>
     <img class="img-fluid card-img-top" style="" ng-hide="false" src="/upload/{{(!f.Bild || f.Bild == '' || f.Bild == 'NULL')? 'platzhalter.jpg':f.Bild}}" style="max-width: 100%; height: auto">
@@ -158,6 +159,9 @@
           <p class="card-text" ng-show="f.more"><b ng-hide="!f.Loesung || f.Loesung=='' || f.Loesung=='NULL'">Problem<br/></b>{{f.Problem}}<br/><b ng-hide="!f.Loesung || f.Loesung=='' || f.Loesung=='NULL'">L&ouml;sung<br/></b>{{f.Loesung}}</p>
           <a class="card-link cl" ng-class="{'text-white': f.clicked}" style="color: #e52b50; text-decoration: underline;" ng-click="f.more=!f.more;">{{f.more? 'Weniger':'Mehr'}}</a><br/>
           <button class="btn btn-outline-secondary btn-sm" ng-class="{'text-white': f.clicked}" ng-style="f.user_supported? {cursor: 'default'}:null" ng-click="vote(f)"><span ng-hide="f.user_supported"><span class="fas fa-thumbs-up"></span> Voten</span><span ng-show="f.user_supported"><span class="fas fa-check"></span>Gevoted</span></button><span ng-class="{'text-white': f.clicked, 'text-muted': !f.clicked}">&nbsp;{{f.supported? f.supported:0}}x gevoted</span>
+    </div>
+    <div class="card-footer">
+      Bearbeitungsstatus: <span class="badge badge-secondary" style="font-weight: 400;" ng-style="{'background-color': getColorFromStatus(f.Bearbeitungsstatus)}">{{f.Bearbeitungsstatus}}</span>
     </div>
 </div>
 
