@@ -63,7 +63,13 @@ app.factory('services', function (appCfg) {
     }
   },
   getLayer: function (name) {
-      return object.getObject(name, object.displayCategories).short;
+    var o = object.getObject(name, object.displayCategories);
+    if(o) {
+      return o.short;
+    }
+    else {
+      return "all";
+    }
     },
     getColorFrom: function (category, ifCategory) {
       c = object.getObject(category, ifCategory);
