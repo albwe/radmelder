@@ -13,13 +13,32 @@ angular.module("radwege").constant('appCfg', {
     settings: {
       main_map_zoom: 13,
       add_point_map_zoom: 17,
-      edit_point_map_zoom: 18
+      edit_point_map_zoom: 18,
+      displayCategories: true
     },
     status: [
       {
         name: "Gemeldet",
         short: "gem",
         color: "yellow",
+        visibleOnMap: true
+      },
+      {
+        name: "Gelöst",
+        short: "gel",
+        color: "green",
+        visibleOnMap: true
+      },
+      {
+        name: "Dringend",
+        short: "dri",
+        color: "red",
+        visibleOnMap: true
+      },
+      {
+        name: "Verworfen",
+        short: "ver",
+        color: "black",
         visibleOnMap: false
       }
     ],
