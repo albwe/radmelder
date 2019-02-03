@@ -130,10 +130,23 @@ app.factory('services', function (appCfg) {
     }
   },
   getIconFromCategory: function (category) {
-    return object.getIconFromColor(object.getObject(category, true).color);
+    var o = object.getObject(category, true);
+    var o = object.getObject(name, object.displayCategories);
+    if(o) {
+      return object.getIconFromColor(o.color);
+    }
+    else {
+      return object.getIconFromColor("black");
+    }
   },
   getIconFromLayer: function(name) {
-    return object.getIconFromColor(object.getObject(name, object.displayCategories).color);
+    var o = object.getObject(name, object.displayCategories);
+    if(o) {
+      return object.getIconFromColor(o.color);
+    }
+    else {
+      return object.getIconFromColor("black");
+    }
   },
     getIconFromColor: function (color) {
       switch (color) {
