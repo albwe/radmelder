@@ -1,30 +1,10 @@
--- phpMyAdmin SQL Dump
--- version 4.0.10.15
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Erstellungszeit: 02. Okt 2018 um 22:56
--- Server Version: 5.1.73-log
--- PHP-Version: 5.5.5
+-- Adminer 4.7.1 MySQL dump
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
+SET NAMES utf8;
+SET time_zone = '+00:00';
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
---
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `mails`
---
-
-CREATE TABLE IF NOT EXISTS `mails` (
+DROP TABLE IF EXISTS `mails`;
+CREATE TABLE `mails` (
   `fk_stelle_id` int(11) NOT NULL,
   `mail` varchar(100) COLLATE utf8_bin DEFAULT NULL,
   `mailing` varchar(5000) COLLATE utf8_bin DEFAULT NULL,
@@ -32,26 +12,17 @@ CREATE TABLE IF NOT EXISTS `mails` (
   PRIMARY KEY (`fk_stelle_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- --------------------------------------------------------
 
---
--- Tabellenstruktur für Tabelle `service`
---
-
-CREATE TABLE IF NOT EXISTS `service` (
+DROP TABLE IF EXISTS `service`;
+CREATE TABLE `service` (
   `fk_stelle` int(11) NOT NULL,
   `service_note` varchar(1000) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`fk_stelle`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- --------------------------------------------------------
 
-
---
--- Tabellenstruktur für Tabelle `stellen`
---
-
-CREATE TABLE IF NOT EXISTS `stellen` (
+DROP TABLE IF EXISTS `stellen`;
+CREATE TABLE `stellen` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `lat` decimal(11,8) DEFAULT NULL,
   `lng` decimal(11,8) DEFAULT NULL,
@@ -60,48 +31,32 @@ CREATE TABLE IF NOT EXISTS `stellen` (
   `Problem` varchar(2000) COLLATE utf8_bin DEFAULT NULL,
   `Loesung` varchar(2000) COLLATE utf8_bin DEFAULT NULL,
   `Bild` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `Status` varchar(100) COLLATE utf8_bin DEFAULT NULL,
+  `Kategorie` varchar(100) COLLATE utf8_bin DEFAULT NULL,
+  `Bearbeitungsstatus` varchar(100) COLLATE utf8_bin DEFAULT 'Gemeldet',
   `published` int(11) NOT NULL DEFAULT '0',
   `declined` int(11) NOT NULL DEFAULT '0',
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=547 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- --------------------------------------------------------
 
---
--- Tabellenstruktur für Tabelle `tags`
---
-
-CREATE TABLE IF NOT EXISTS `tags` (
+DROP TABLE IF EXISTS `tags`;
+CREATE TABLE `tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fk_stelle` int(11) NOT NULL,
-  `tag` varchar(100) COLLATE utf8_bin NOT NULL,
+  `tag_name` varchar(100) COLLATE utf8_bin DEFAULT NULL,
+  `tag_value` varchar(100) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- --------------------------------------------------------
 
---
--- Tabellenstruktur für Tabelle `votes`
---
-
-CREATE TABLE IF NOT EXISTS `votes` (
+DROP TABLE IF EXISTS `votes`;
+CREATE TABLE `votes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fk_stelle` int(11) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=15995 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- --------------------------------------------------------
 
---
--- Struktur des Views `status_anzahl`
---
-DROP TABLE IF EXISTS `status_anzahl`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`kaktus`@`localhost` SQL SECURITY DEFINER VIEW `status_anzahl` AS select `stellen`.`Status` AS `Status`,count(`stellen`.`Status`) AS `Anzahl` from `stellen` where (`stellen`.`published` = 1) group by `stellen`.`Status` order by count(`stellen`.`Status`) desc;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- 2019-02-19 10:00:51
