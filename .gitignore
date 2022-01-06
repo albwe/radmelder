@@ -3,3 +3,4 @@ js/config.js
 .remote-sync.json
 verwaltung/image_download/*
 !verwaltung/image_download/sense.txt
+*.DS_Store
