@@ -9,7 +9,7 @@ $id = $data['id'];
 $message = $data['message'];
 $mail = $data['address'];
 $subject = $data['subject'];
-$header = 'From: info@leezenstadt.de' . "\r\n" .'Reply-To: info@leezenstadt.de';
+$header = 'From: '.$sender_mail_address.' '. "\r\n" .'Reply-To: '.$sender_mail_address;
 $test = $mysql->query("SELECT * FROM mails WHERE fk_stelle_id=$id AND mailing_time IS NOT NULL;");
 if($test->num_rows==0) {
   $mailing = mail($mail, $subject, $message, $header);
